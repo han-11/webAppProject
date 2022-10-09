@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Booking information{% endblock %}
+
+
+{% block content %}
+<div class="passenger_info">
+  <h1 style="text-align:center">Passenger Details</h1>
+  <table class="table table-hover" id="passenger_info">
+    <thead>
+      <tr>
+        {% for name in col_names %}
+          <th>{{name}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+  
+    
+      <tbody>
+        {% for info in passenger_info %}
+        <tr>
+          <form action="{{ url_for('update' ) }}" method="post"></form> 
+            <td>{{info[0]}}</td>
+            <td>{{info[1]}}</td>
+            <td>{{info[2]}}</td>
+            <td>{{info[3]}}</td>
+            <td>{{info[4]}}</td>
+            <td>{{info[5]}}</td>
+            <td>{{info[6]}}</td>
+            <td>{{info[7]}}</td>
+            <td><button type="submit" name="infotoupdate"  value="{{info[3]}}"> Update </button></td>
+          </form> 
+        </tr>  
+        {% endfor %}
+      </tbody>
+  </table>
+</div>
+
+
+<a href="{{ url_for('update') }}" id=current_user.id class="btn btn-secondary btn-sm">Update Profile</a>
+<a href="{{ url_for('book_flight') }}" id=current_user.id class="btn btn-secondary btn-sm">Book Flight</a>
+<a href="{{ url_for('home') }}" class="btn btn-secondary btn-sm">Logout</a>
+
+
+<br/>
+
+<div class="card">
+  <div class-"card-header">
+    <h1 style="text-align:center">Passenger Details</h1>
+    <div class="card-body">
+
+      <form action="{{ url_for('update' ) }}" method="post">
+        <div class="form-group">
+          
+         
+              <label for="first_name">{{name}}</label>
+            {% for info in passenger_info %}
+              {% for i in info %}
+              <input type="text" class="form-control" id="first_name" name="first_name" value="{{i}}">
+              {% endfor %}
+
+          
+            {% endfor %}
+    
+        </div>   
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+      </form>
+    </div>
+  </div>
+</div>
+
+  <div class="booking_info_display">
+    <h1 style="text-align:center">Your Booking Information</h1>
+    <table class="table table-hover" id="bookings">
+      <thead>
+        <tr>
+          {% for name in column_names %}
+            <th>{{name}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+    
+      
+        <tbody>
+          {% for detail in booking_details %}
+          <tr>
+            <form action="{{ url_for('cancel_flight', flight_id='{{detail[3]}}' ) }}" method="post"></form>
+              <td>{{detail[0]}}</td>
+              <td>{{detail[1]}}</td>
+              <td>{{detail[2]}}</td>
+              <td>{{detail[3]}}</td>
+              <td>{{detail[4]}}</td>
+              <td>{{detail[5]}}</td>
+              <td>{{detail[6]}}</td>
+              <td>{{detail[7]}}</td>
+              <td><button type="submit" name="flightID"  value="{{detail[3]}}"> Cancel </button></td>
+            </form>
+          </tr>  
+          {% endfor %}
+        </tbody>
+    </table>
+  </div>
+
+
+
+  
+
+
+
+    
+ 
+
+
+
+
+
+
+
+
+{% endblock %}
