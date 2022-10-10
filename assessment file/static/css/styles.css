@@ -12,4 +12,12 @@ h2{
 }
   
   footer {
-    padding-left: 42%;
+   
+    text-align: center;
+  }
+
+.airport_to_book {
+  text-align: center;
+  font-size: 1.5em;
+  
+}
