@@ -9,7 +9,7 @@
 
 
     <h1 style="text-align:center">Departures</h1>
-    <form action="{{ url_for('book_flight') }}" method="post">
+   
       <table class="table table-hover" id="arrivals">
         <thead>
           <tr>
@@ -33,12 +33,13 @@
             <td>{{result[8]}}</td>
             <td>{{result[9]}}</td>
             <td>{{result[10]}}</td>
+            <td><a href="/booking/confirm/{{result[2]}}" class="btn btn-danger btn-xs" >Cancel</a></td>
             <td><button type="submit" class="btn btn-primary" name="flightID" value="{{result[2]}}">Book</button></td>
           </tr>  
           {% endfor %}
         </tbody>
       </table>
-    </form>
+   
 
 
 {% endblock %}

@@ -1,0 +1,163 @@
+
+<div class="passenger_info">
+
+  
+  <h3 style="text-align:center"> Passenger Details</h3>
+ 
+      <table id="passenger_details" class="table table-hover passenger_info-result">
+          <thead>
+            <tr>
+                <th>PassengerID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Passport</th>
+                <th>Date of Birth</th>
+                <th>Loyalty Tier</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for info in passenger_info %}
+            <tr>
+                <td>{{info.1}}</td>
+                <td>{{info.1 }}</td>
+                <td>{{info.2}}</td>
+                <td>{{info.3}}</td>
+                <td>{{info.4}}</td>
+                <td>{{info.5}}</td>
+                <td>{{info.6}}</td>
+                <td>{{info.7}}</td>
+                <td><a  type="button" class="btn btn-warning" id="myBtn" data-bs-toggle="modal" data-bs-target="#myModal" href="#" >
+                  Update </a></td>
+              </tr>
+        
+                      
+
+                <!-- Modal Edit Customer Details-->
+  <div class="modal fade" id="myModal"  role="dialog"  >
+    <div class="modal-dialog">
+
+
+      <div class="modal-content">
+
+
+          <div class="modal-header">
+
+
+            <h4 class="modal-title">Update Information</h4>
+
+
+          </div>
+
+
+          <div class="modal-body">
+
+
+            <form action="{{url_for('update')}}" method="POST">
+             
+              <div class="form-group">
+
+
+                <label>First Name:</label>
+                <input type="hidden"  name="passengerid" value="{{info.0}}">
+
+                <input type="text" class="form-control" id="firstname" name="firstname" value="{{info.1 }}">
+
+
+            </div>
+
+
+                <div class="form-group">
+
+
+                  <label>Last Name:</label>
+
+                    <input type="text" class="form-control" id="lastname" name="lastname" value="{{info.2}}">
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                  <label>Email:</label>
+
+                  <input type="text" class="form-control" id="email" name="email" value="{{info.3}}">
+
+
+                </div>
+
+
+                <div class="form-group">
+
+
+                  <label>Phone:</label>
+
+                  <input type="text" class="form-control" id="phone" name="phone" value="{{info.4}}">
+
+
+                </div>
+
+                <div class="form-group">
+
+
+                  <label>Passport:</label>
+
+                  <input type="text" class="form-control" id="passport" name="passport" value="{{info.5}}">
+
+
+              </div>
+              <div class="form-group">
+
+
+                  <label>Date of Birth:</label>
+
+                  <input type="text" class="form-control" id="dob" name="dob" value="{{info.6}}">
+
+
+              </div>
+
+
+
+
+                <div class="form-group">
+
+
+                  <button class="btn btn-primary" type="submit">Update</button>
+
+
+                </div>
+
+               
+            </form>
+
+
+          </div>
+
+
+          <div class="modal-footer">
+
+
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+
+          </div>
+
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+  {% endfor %}
+
+</tbody>
+</table>  
+
+  
+</div> 

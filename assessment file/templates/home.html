@@ -8,7 +8,7 @@
 <div class="row row-cols-1 row-cols-md-2 g-4">
   <div class="col">
     <div class="card h-100">
-      <img src="..." class="card-img-top" alt="...">
+     
       <div class="card-body">
          <h5 class="card-title">Check the Departure & Arrival Timetable</h5> 
           <form action="{{ url_for ('arrival_departure') }}" method="post">
@@ -19,7 +19,7 @@
                   <option value="{{airport}}">{{ airport }}</option>
                   {% endfor %}   
               </select>
-            <button type="submit" class="btn btn-primary">Submit</button> 
+            <button type="submit" class="btn btn-dark">Submit</button> 
           </form>
         </div>
       </div>
@@ -28,17 +28,25 @@
 
     <div class="col">
       <div class="card h-100">
-        <img src="..." class="card-img-top" alt="...">
+        
         <div class="card-body">
-          <a href="{{ url_for ('log_in') }}"> 
+          <!-- <a href="{{ url_for ('log_in') }}"> 
             <h5 class="card-title">Log in to book your flight</h5>
-           </a>
+           </a> -->
+           <h5 class="card-title">Log in to make booking</h5> 
+           <form action="{{ url_for ('log_in')}}" method="post" >
+            <label>Name</label>
+            <input type="text" placeholder="Name" name="customername">
+            <label>UserID</label>
+            <input type="text" placeholder="Email Address" name="userid">
+            <button type="submit" class= "btn btn-dark" >Login</button>
+          </form>
+        
         </div>
       </div>
     </div>
     
     
   </div>
-  
  
 {% endblock %}
