@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Login Page{% endblock %}
+
+
+
+{% block content %}
+
+  
+  <form action="{{ url_for ('log_in')}}" method="post" >
+    <label>Name</label>
+    <input type="text" placeholder="Name" name="customername">
+    <label>UserID</label>
+    <input type="text" placeholder="Email Address" name="userid">
+    <button type="submit">Ok</button>
+  </form>
+
+
+  
+
+  {% endblock %}
