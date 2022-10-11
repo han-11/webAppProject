@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 import mysql.connector
@@ -107,32 +108,35 @@ def arrival_departure():
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking_info():
-    passenger_id = session['passenger_id']
-    cur = getCursor()
-    cur.execute('''SELECT * from passenger
-                            WHERE PassengerID = %s;''', (passenger_id,))
-    passenger_info = cur.fetchall()
-    col_names = [item[0] for item in cur.description]
+    try:
+        passenger_id = session['passenger_id']
+        cur = getCursor()
+        cur.execute('''SELECT * from passenger
+                                WHERE PassengerID = %s;''', (passenger_id,))
+        passenger_info = cur.fetchall()
+        col_names = [item[0] for item in cur.description]
 
-    cur = getCursor()
-    cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName, f.FlightID,
-                            f.FlightNum, f.FlightDate, f.DepTime, f.ArrTime
-                            from passenger as p
-                            JOIN  passengerFlight as pf on pf.PassengerID=p.PassengerID
-                            JOIN flight as f on f.FlightID = pf.FlightID
-                            WHERE p.PassengerID = %s
-                            
-                            ORDER BY f.FlightDate;''', (passenger_id, ))
-    booking_details = cur.fetchall()
-    column_names = [item[0] for item in cur.description]
+        cur = getCursor()
+        cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName, f.FlightID,
+                                f.FlightNum, f.FlightDate, f.DepTime, f.ArrTime
+                                from passenger as p
+                                JOIN  passengerFlight as pf on pf.PassengerID=p.PassengerID
+                                JOIN flight as f on f.FlightID = pf.FlightID
+                                WHERE p.PassengerID = %s
+                                
+                                ORDER BY f.FlightDate;''', (passenger_id, ))
+        booking_details = cur.fetchall()
+        column_names = [item[0] for item in cur.description]
 
-    cur = getCursor()
-    cur.execute(
-        "SELECT DISTINCT  AirportCode, AirportName FROM airport JOIN route on route.DepCode = airport.AirportCode;")
-    airports = cur.fetchall()
-    date_object = datetime.strptime(CURRENTTIME, '%Y-%m-%d').date()
-    return render_template('app_info_page.html', passenger_id=session['passenger_id'], passenger_info=passenger_info, col_names=col_names,
-                           column_names=column_names, booking_details=booking_details, airports=airports, currentTime=date_object)
+        cur = getCursor()
+        cur.execute(
+            "SELECT DISTINCT  AirportCode, AirportName FROM airport JOIN route on route.DepCode = airport.AirportCode;")
+        airports = cur.fetchall()
+        date_object = datetime.strptime(CURRENTTIME, '%Y-%m-%d').date()
+        return render_template('app_info_page.html', passenger_id=session['passenger_id'], passenger_info=passenger_info, col_names=col_names,
+                               column_names=column_names, booking_details=booking_details, airports=airports, currentTime=date_object)
+    except:
+        return "<h1> Please Sign In or Register to Make Booking.</h1>"
 
 
 @ app.route('/booking/update', methods=['GET', 'POST'])
@@ -172,52 +176,88 @@ def flight_list():
         airport_code = request.form.get("selected_airport")[2:5]
         date = request.form.get("date")
         cur = getCursor()
-        cur.execute('''SELECT a.AirportName, r.FlightNum, f.FlightID,
-                    f.FlightDate, f.DepTime, f.ArrTime, f.Duration, ac.Seating, f.FlightStatus, s.StatusDesc
-                    FROM airport as a
-                    JOIN route as r on r.DepCode = a.AirportCode
-                    JOIN flight as f on f.FlightNum = r.FlightNum
-                    JOIN aircraft as ac on ac.RegMark = f.Aircraft
-                    JOIN status as s on  s.FlightStatus = f.FlightStatus
-                    where a.AirportCode = %s
-                    AND f.FlightDate BETWEEN %s
-                    AND DATE_ADD(%s, INTERVAL 7 DAY); ''', (airport_code, date, date))
+        cur.execute('''SELECT FlightNum, result.AirportName as Departure, a.AirportName as Arrival, 
+                        FlightID, FlightDate, DepTime, ArrTime, Duration, Seating, FlightStatus, StatusDesc
+                        from 
+                        (SELECT  r.FlightNum, r.ArrCode, r.DepCode, a.AirportName, f.FlightID,
+                        f.FlightDate, f.DepTime, f.ArrTime, f.Duration, ac.Seating, f.FlightStatus, s.StatusDesc
+                        FROM route as r
+                        JOIN  airport as a on a.AirportCode = r.DepCode
+                        JOIN flight as f on f.FlightNum = r.FlightNum
+                        JOIN aircraft as ac on ac.RegMark = f.Aircraft
+                        JOIN status as s on  s.FlightStatus = f.FlightStatus
+                        where a.AirportCode =%s
+                        AND f.FlightDate BETWEEN %s
+                        AND DATE_ADD(%s , INTERVAL 7 DAY)
+                        ORDER BY f.FlightDate) AS result
+                        JOIN airport as a ON a.AirportCode = result.ArrCode; ''', (airport_code, date, date))
+
         departures = cur.fetchall()
         column_names = [item[0] for item in cur.description]
         return render_template('booking.html', departures=departures, column_names=column_names)
 
 
-@ app.route('/booking/confirm', methods=['POST'])
-def book_flight():
-    if request.method == "POST":
-        passenger_id = session['passenger_id']
-        flight_id = request.form.get("flight_id")
-        cur = getCursor()
-        cur.execute('''INSERT INTO passengerFlight (PassengerID, FlightID)
-                    VALUES (%s, %s);''', (passenger_id, flight_id))
-        flash("Successfully Booked!")
-        return render_template('app_info_page.html', msg_sent=True)
+@ app.route('/booking/confirm/<string:flight_id>', methods=['GET', 'POST'])
+def book_flight(flight_id):
 
-    return render_template('app_info_page.html', msg_sent=False)
+    passenger_id = session['passenger_id']
+    cur = getCursor()
 
+    cur.execute('''INSERT INTO passengerFlight VALUES (%s, %s);''',
+                (flight_id, passenger_id, ))
 
-# @app.route('/booking/cancel', methods=['POST'])
-# def cancel():
-#     if request.method == "POST":
-#         passenger_id = session['passenger_id']
-#         flight_id = request.form.get("flightID")
-#         print(passenger_id, flight_id)
-#         # cur = getCursor()
-#         # cur.execute('''DELETE FROM passengerFlight
-#         #             WHERE PassengerID = %s AND FlightID = %s;''', (passenger_id, flight_id))
-#         # flash("Successfully Cancelled!")
-#     return render_template('app_info_page.html', msg_sent=True)
+    flash("Successfully Booked!")
+    return render_template('app_info_page.html', msg_sent=True)
 
 
 @app.route('/logout')
 def log_out():
     session.pop('logged_in', None)
     session.pop('passenger_id', None)
+    return redirect(url_for('home'))
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_login():
+
+    cur = getCursor()
+    cur.execute('''SELECT FirstName, LastName
+                FROM airline.staff;;''')
+    staffs = cur.fetchall()
+
+    if request.method == 'POST':
+        firstname = request.form.get("firstname")
+        cur = getCursor()
+        cur.execute('''SELECT FirstName, LastName, IsManager
+                FROM staff
+                WHERE FirstName = %s ;''', (firstname,))
+        staff = cur.fetchone()
+        if staff:
+            session['logged_in'] = True
+            session['staff_id'] = staff[0]
+            session['staff_name'] = staff[1]
+            session['is_manager'] = staff[2]
+            return redirect(url_for('admin_passengers'))
+    return render_template('admin_login.html', staffs=staffs)
+
+
+@app.route('/admin/passengers', methods=['GET', 'POST'])
+def admin_passengers():
+    cur = getCursor()
+    cur.execute('''SELECT PassengerID, FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth
+                FROM passenger;''')
+    passengers = cur.fetchall()
+    column_names = [item[0] for item in cur.description]
+    return render_template('admin_passengers.html', passengers=passengers, column_names=column_names)
+
+
+@app.route('/admin_logout')
+def admin_logout():
+    session.pop('logged_in', None)
+    session.pop('staff_id', None)
+    session.pop('staff_name', None)
+    session.pop('is_manager', None)
+
     return redirect(url_for('home'))
 
 

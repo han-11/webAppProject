@@ -1,45 +1,85 @@
 {% extends "base.html" %}
 
-{% block title %}Arrival and Departues{% endblock %}
+{% block title %}Available Flights {% endblock %}
 
 
 
 {% block content %}
 
+<div class="flight_info">
 
-
-    <h1 style="text-align:center">Departures</h1>
+  <h1 style="text-align:center">Departures</h1>
    
-      <table class="table table-hover" id="arrivals">
-        <thead>
-          <tr>
-        {% for name in column_names %}
-          <th>{{name}}</th>
+    <table class="table table-hover" id="arrivals">
+      <thead>
+        <tr>
+      {% for name in column_names %}
+        <th>{{name}}</th>
+      {% endfor %}
+        </tr>
+      </thead>
+    
+      <tbody>
+        {% for result in departures %}
+        <tr>
+          <td>{{result[0]}}</td>
+          <td><a href="#">{{result[1]}}</a></td>
+          <td>{{result[2]}}</td>
+          <td>{{result[3]}}</td>
+          <td>{{result[4]}}</td>
+          <td>{{result[5]}}</td>
+          <td>{{result[6]}}</td>
+          <td>{{result[7]}}</td>
+          <td>{{result[8]}}</td>
+          <td>{{result[9]}}</td>
+          <td>{{result[10]}}</td>
+          {% if result[7] == 0   %}
+          <td>Fully Booked</td>
+          {% elif result[8] =='Cancelled'%}
+          <td> Cancelled </td>
+          {% else %}
+          <td><a type="button" id="myBtn"  class="btn btn-outline-primary" data-bs-toggle="modal" 
+            data-bs-target="#myModal{{result[3]}}" href="/booking/confirm/{{result[3]}}" >Book Flight</a></td>
+          {% endif %}
+          
+        </tr>  
+
+
+
+          <!-- Modal Edit Customer Details-->
+          <div class="modal fade" id="myModal{{result[3]}}" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Please Confirm Your Booking Details</h5>
+                  </div>
+                  <div class="modal-body" id="modal-body">
+  
+                    <div class="form-group">
+                      
+                      <p> Flight Number:{{result[0]}} </p>
+                      <p> Arrival Airport:{{result[2]}} </p>
+                      <p> Flight Date:{{result[4]}} </p>
+                      <p> Flight Time:{{result[5]}} </p>
+                      <p> Flight Duration:{{result[7]}} </p>
+
+                    </div>
+              
+                  
+                  </div>
+                  <div class="modal-footer">
+                    <a href="/booking/confirm/{{result[3]}}" class="btn btn-success ">Confirm</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  </div>
+              </div>
+            </div>
+          </div>
+
+
         {% endfor %}
-          </tr>
-        </thead>
-      
-        <tbody>
-          {% for result in departures %}
-          <tr>
-            <td>{{result[0]}}</td>
-            <td><a href="#">{{result[1]}}</a></td>
-            <td>{{result[2]}}</td>
-            <td>{{result[3]}}</td>
-            <td>{{result[4]}}</td>
-            <td>{{result[5]}}</td>
-            <td>{{result[6]}}</td>
-            <td>{{result[7]}}</td>
-            <td>{{result[8]}}</td>
-            <td>{{result[9]}}</td>
-            <td>{{result[10]}}</td>
-            <td><a href="/booking/confirm/{{result[2]}}" class="btn btn-danger btn-xs" >Cancel</a></td>
-            <td><button type="submit" class="btn btn-primary" name="flightID" value="{{result[2]}}">Book</button></td>
-          </tr>  
-          {% endfor %}
-        </tbody>
-      </table>
-   
+      </tbody>
+    </table>
+  </div>
 
 
 {% endblock %}

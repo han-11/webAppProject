@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Booking information{% endblock %}
+
+
+{% block content %}
+
+
+
+
+<!-- <a href="{{ url_for('home') }}" class="btn btn-secondary btn-sm">Logout</a> --> 
+
+
+{% if msg_sent: %}
+
+  {% with messages = get_flashed_meddages() %}
+    {% if messages%}
+      {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+     {% endif %} 
+  {% endwith %}
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">Congratulations!</h4>
+    <p>You are successfully updated your detials.</p>
+    <hr>
+    <p class="mb-0">Please <a href="{{url_for ('log_in')}}">Sign In</a> to make a booking.</p>
+  </div>
+
+
+{% else: %}
+
+
+<div class="airport_to_book">
+  <h3 >Choose airport to make Booking</h3>
+    <form action="{{ url_for ('book_flight') }}" method="post">
+        <select name="selected_airport"  >
+          <label for="airport">Choose The Airport:</label>
+            <option value=""  >--Please choose an airport--</option>
+            {% for airport in airports %}
+            <option value="{{airport}}">{{ airport }}</option>
+            {% endfor %}   
+        </select>
+        <input name="date" type=date min=2020-01-01>
+      <button type="submit" class="btn btn-primary">Submit</button> 
+    </form>
+</div>
+
+
+
+<br/>
+
+<div class="passenger_info">
+  <h3 style="text-align:center">Update Passenger Details</h3>
+
+    <form action="{{url_for('update')}}" method="post">
+      <table id="passenger_details" class="passenger_info-result">
+          <thead>
+            <tr>
+                <th>PassengerID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Passport</th>
+                <th>Date of Birth</th>
+                <th>Loyalty Tier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {% for info in passenger_info %}
+                <td><input type="text" class="form-control" id="passenger_id" name="passenger_id" value="{{info[0]}}"></td>
+                <td><input type="text" class="form-control" id="firstname" name="firstname" value="{{info[1]}}"></td>
+                <td><input type="text" class="form-control" id="lastname" name="lastname" value="{{info[2]}}"></td>
+                <td><input type="text" class="form-control" id="email" name="email" value="{{info[3]}}"></td>
+                <td><input type="text" class="form-control" id="phone" name="phone" value="{{info[4]}}"></td>
+                <td><input type="text" class="form-control" id="passport" name="passport" value="{{info[5]}}"></td>
+                <td><input type="text" class="form-control" id="dob" name="dob" value="{{info[6]}}"></td>
+                <td>{{info[7]}}</td>
+              {% endfor %}
+              <td><input type="submit" class="btn btn-primary" value="Update"></td>
+            </tr>
+          </tbody>
+      </table> 
+    </form>
+</div>  
+
+<br/>
+
+<!-- <div class="booking_info_display">
+  <h1 style="text-align:center">Your Booking Information</h1>
+
+  <form action="{{ url_for('cancel_flight',flight_id='{{detail[3]}}') }}" method="post">
+    <table class="table table-hover" id="bookings">
+      <thead>
+        <tr>
+          {% for name in column_names %}
+            <th>{{name}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+    
+      <tbody>
+        {% for detail in booking_details %}
+        <tr>
+          {% for info in detail %}
+            <td>{{info}}</td> 
+          {% endfor %}
+          <td><input type="submit" class="btn btn-danger" value="Cancel"></td>
+          <input  name="flightID" value="{{detail[3]}}" />
+          <td><button type="submit"  name="flightID" value="{{detail[3]}}">Cancel</button></td>
+        </tr>   
+        {% endfor %}
+      </tbody>
+    </table>
+  </form>
+</div> -->
+
+
+
+
+<br/>
+
+    <div class="booking_info_display">
+      <h1 style="text-align:center">Your Booking Information</h1>
+
+      <form action="{{ url_for('cancel_flight', flight_id='{{detail[3]}}') }}" method="post">
+        <table class="table table-hover" id="bookings">
+          <thead>
+            <tr>
+              {% for name in column_names %}
+                <th>{{name}}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+        
+          <tbody>
+            {% for detail in booking_details %}
+            <tr>
+                <td>{{detail[0]}}</td>
+                <td>{{detail[1]}}</td>
+                <td>{{detail[2]}}</td>
+                <td>{{detail[3]}}</td>
+                <td>{{detail[4]}}</td>
+                <td>{{detail[5]}}</td>
+                <td>{{detail[6]}}</td>
+                <td>{{detail[7]}}</td>
+                <input type="hidden" name="flightID" value="{{detail[3]}}" /> 
+                <!-- <td><input type="submit" class="btn btn-danger" value="Cancel"></td> -->
+                <td><button type="submit" class="btn btn-danger" name="flightID" value="{{detail[3]}}">Cancel</button></td>
+            </tr> 
+            
+            {% endfor %}
+          </tbody>
+        </table>
+      </form>
+    </div>
+
+
+
+    <div class="airport_to_book">
+      <h3 >Choose a flight to cancel</h3>
+        <form action="{{ url_for ('cancel_flight') }}" method="POST">
+          <div>
+            <select name="flight_id"  >
+              <label for="flight_id">Choose Flight ID to cancel:</label>
+                <option value=""  >--Flight ID--</option>
+                {% for i in booking_details %}
+                <option value="{{i[3]}}">{{i[3]}}</option>
+                {% endfor %}   
+            </select>
+          <button type="submit" class="btn btn-primary">Submit to Cancel</button> 
+          </div>     
+        </form>
+    </div>
+    
+
+    
+    
+
+
+  {% endif %}
+
+
+  
+
+
+
+    
+ 
+
+
+
+
+
+
+
+
+{% endblock %}
