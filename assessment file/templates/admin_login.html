@@ -6,37 +6,41 @@
 
 {% block content %}
 
-  
-<div class="dropdown">
-  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-   Choose Your Name To Sign In
-  </a>
-
-  <ul class="dropdown-menu">
-    {% for staff in staffs %}
-    <li><a class="dropdown-item" href="#">{{ staff[0] }}</a></li>
-    <li><a class="dropdown-item" href="#">{{ staff[1] }}</a></li>
-    <li><a class="dropdown-item" href="#">{{ staff[2] }}</a></li>
-    {% endfor %} 
-  </ul>
-</div>
-
 
 
   <div class="card-body">
     <h5 class="card-title">Staff Please Sign in :</h5> 
-     <form action="{{ url_for ('admin_login') }}" method="post">
-         <select name="selected_airport"  >
+     <form action="{{ url_for ('admin_login_form') }}" method="post">
+
+         <select name="staff_id"  >
           <option value=""  >--Please choose your name to login--</option>
           {% for staff in staffs %}
-             <option name = "firstname" value="">{{ staff[0] }} </option>
-              <option name = "lastname" >{{ staff[1] }}</option>
-             <option type="hidden"  id="isManager" name="isManager" value="{{staff[3]}}"> </option>
-             {% endfor %}   
+            <option value="{{ staff[1] }} " >{{ staff[1] }} {{ staff[0]}} </option>  
+          {% endfor %}   
          </select>
        <button type="submit" class="btn btn-dark">Login</button> 
      </form>
    </div>
+  
+
+   <form class="dropdown-menu p-4">
+    <div class="form-group">
+      <label for="exampleDropdownFormEmail2">Email address</label>
+      <input type="email" class="form-control" id="exampleDropdownFormEmail2" placeholder="email@example.com">
+    </div>
+    <div class="form-group">
+      <label for="exampleDropdownFormPassword2">Password</label>
+      <input type="password" class="form-control" id="exampleDropdownFormPassword2" placeholder="Password">
+    </div>
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="dropdownCheck2">
+      <label class="form-check-label" for="dropdownCheck2">
+        Remember me
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Sign in</button>
+  </form>
+
   
 
   {% endblock %}

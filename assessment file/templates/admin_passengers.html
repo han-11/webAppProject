@@ -1,22 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Customer Booking Information{% endblock %}
+{% block title %}Passengers Dashboard{% endblock %}
 
 
 {% block content %}
 
-
-<div class="row">
-  <div class=""col-md-6 col-md-offset-3>
-    <h3>Welcome!</h3>
-    {% if session['staff_id']%}
-      <h3>Staff ID: {{session['staff_id']}}
-      <a href="{{ url_for('log_out') }}" class="btn btn-secondary btn-sm">Logout</a> </h3>
-    {% else %}
-     <p> Not login yet</p>
-    {% endif %}
-  </div>
-</div>
 
 
 
@@ -36,19 +24,20 @@
     </thead>
   
     <tbody>
-      {% for detail in booking_details %}
+      {% for passenger in passengers %}
       <tr>
-          <td>{{detail[0]}}</td>
-          <td>{{detail[1]}}</td>
-          <td>{{detail[2]}}</td>
-          <td>{{detail[3]}}</td>
-          <td>{{detail[4]}}</td>
-          <td>{{detail[5]}}</td>
-          <td>{{detail[6]}}</td>
-          <td>{{detail[7]}}</td>
-          {% if detail[5] > currentTime %}
-          <td><a href="/booking/cancel/{{ detail[3] }}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure to Cancel?')">Cancel</a></td>
-          {% endif %}
+          <td>{{passenger.0}}</td>
+          <td>{{passenger.1}}</td>
+          <td>{{passenger.2}}</td>
+          <td>{{passenger.3}}</td>
+          <td>{{passenger.4}}</td>
+          <td>{{passenger.5}}</td>
+          <td>{{passenger.6}}</td>
+          <td>{{passenger.7}}</td>
+          <td>{{passenger.8}}</td>
+          <td>{{passenger.9}}</td>
+          <td>{{passenger.10}}</td>
+
       </tr> 
       {% endfor %}
     </tbody>

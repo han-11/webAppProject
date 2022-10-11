@@ -219,33 +219,53 @@ def log_out():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_login():
-
     cur = getCursor()
-    cur.execute('''SELECT FirstName, LastName
-                FROM airline.staff;;''')
+    cur.execute('''SELECT FirstName, StaffID
+                FROM staff;''')
     staffs = cur.fetchall()
+    return render_template('admin_login.html', staffs=staffs)
 
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login_form():
     if request.method == 'POST':
-        firstname = request.form.get("firstname")
+        name = request.form.get("staff_id")
+        print(name)
+        staffid = name
         cur = getCursor()
-        cur.execute('''SELECT FirstName, LastName, IsManager
-                FROM staff
-                WHERE FirstName = %s ;''', (firstname,))
+        cur.execute(
+            '''SELECT * FROM staff WHERE StaffID = %s ;''', (staffid, ))
         staff = cur.fetchone()
+        print(staff)
+
         if staff:
             session['logged_in'] = True
             session['staff_id'] = staff[0]
-            session['staff_name'] = staff[1]
-            session['is_manager'] = staff[2]
-            return redirect(url_for('admin_passengers'))
-    return render_template('admin_login.html', staffs=staffs)
+            session['staff_name'] = staff[1:2]
+            session['is_manager'] = staff[-1]
+            print(session['is_manager'])
+            return redirect(url_for('admin_home'))
+        else:
+            flash("Invalid Username or Password")
+
+    return redirect(url_for('admin_passengers'))
+
+
+@app.route('/admin/home', methods=['GET', 'POST'])
+def admin_home():
+    if session['logged_in'] == True:
+        if session['is_manager'] == 1:
+            return render_template('admin_home.html', staff_name=session['staff_name'])
+        else:
+            return render_template('admin_home.html', staff_name=session['staff_name'])
+    else:
+        return redirect(url_for('admin_login'))
 
 
 @app.route('/admin/passengers', methods=['GET', 'POST'])
 def admin_passengers():
     cur = getCursor()
-    cur.execute('''SELECT PassengerID, FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth
-                FROM passenger;''')
+    cur.execute('''SELECT * FROM passenger ORDER BY LastName, FirstName;''')
     passengers = cur.fetchall()
     column_names = [item[0] for item in cur.description]
     return render_template('admin_passengers.html', passengers=passengers, column_names=column_names)
@@ -258,7 +278,7 @@ def admin_logout():
     session.pop('staff_name', None)
     session.pop('is_manager', None)
 
-    return redirect(url_for('home'))
+    return redirect(url_for('admin_login_form'))
 
 
 if __name__ == "__main__":
