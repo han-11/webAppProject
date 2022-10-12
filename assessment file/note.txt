@@ -1,0 +1,3 @@
+CURRENTTIME 
+date : input date not able to pass value to mysql query  line178  in function flight_list
+question 17, can not make booking for passsenger because of the date issue and passenger_id is missing

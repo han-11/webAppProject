@@ -25,3 +25,14 @@ h2{
 .modal-btn {
   margin-top: 15px;
 }
+
+.form-control-inline {
+  display: inline;
+  
+}
+
+.container {
+  display: flex;
+  display: inline-block;
+  display: inline;
+}

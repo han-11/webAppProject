@@ -12,13 +12,13 @@
     <h3>Welcome!</h3>
     {% if session['staff_id']%}
       <h3>Staff ID: {{session['staff_id']}}
-        <p> Staff Name : {{ session['staff_name'] }}</p>
+        <p> Staff Name : {{ session['staff_name']}}</p>
         {% if  session['is_manager'] == 1 %}
           <p> Staff Type : Manager</p>
         {% else %}
           <p> Staff Type : Staff</p>
         {% endif %}
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-dark btn-sm">Logout</a> </h3>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-link btn-sm">Logout</a> </h3>
     {% else %}
      <p> Not login yet</p>
     {% endif %}
@@ -26,9 +26,28 @@
 </div>
 
 
+<div class="jumbotron">
+  <h1 class="display-4">Passenger Management Portal</h1>
+  <p class="lead">Get access to manage cutomer's profile and booking information.</p>
+  <hr class="my-4">
+  <p>Manage Passengers List</p>
+  <p class="lead">
+    <a class="btn btn-primary btn-dark" href="{{ url_for('admin_passengers') }}" role="button">Passenger List</a>
+  </p>
+</div>
+
+<div class="jumbotron">
+  <h1 class="display-4">Flight Management Portal</h1>
+  <p class="lead">Get access to manage and update flights information.</p>
+  <hr class="my-4">
+  <p>Manage Flights.</p>
+  <p class="lead">
+    <a class="btn btn-primary btn-dark" href="{{ url_for('admin_flight_list')}}"role="button">Flight List</a>
+  </p>
+</div>
 
 <a href="{{ url_for('admin_passengers') }}">Manage Passengers List</a>
-<a href="">Manage Flights</a>
+<a href="{{ url_for('admin_flight_list')}}">Manage Flights</a>
 
 
 {% endblock %}
