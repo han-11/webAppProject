@@ -24,3 +24,8 @@ I decided to use "GET" path during both sessions instead of "POST" , so that bot
 
 
 2. For the function that allows admin to filter flight list in admin portal, assumption is that I can combine both date range and departure airport query as one query, however I have some issue with using where and condition in mysql query, so I have to seperate the two filter funtion as flight_search and flight_date_search seperately.
+
+
+3. There is a duplicate function.  passenger_profile(passenger_id):
+
+but cancel and update customer info are shared bwtween customer session and admin session
