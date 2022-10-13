@@ -14,3 +14,13 @@ Customer Portal contains:
   
   
   3.
+
+
+
+Assumption:
+
+1. Assuming admin and user can use the same path to manage customer's profile, such as update customer profile, cancel flight, or make new booking for customer. However, it turns out that I used the session['passenger_id'] to pass the passenger_id value during customer session, which makes it's difficult to share same function and route between customer and admin. 
+I decided to use "GET" path during both sessions instead of "POST" , so that both admin and user can update and cancel flight use same html and route. However, since book flight can only reachable during customer session.
+
+
+2. For the function that allows admin to filter flight list in admin portal, assumption is that I can combine both date range and departure airport query as one query, however I have some issue with using where and condition in mysql query, so I have to seperate the two filter funtion as flight_search and flight_date_search seperately.
