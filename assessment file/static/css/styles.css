@@ -11,10 +11,10 @@ h2{
   text-align: center;
 }
   
-  footer {
-   
-    text-align: center;
-  }
+footer {
+  
+  text-align: center;
+}
 
 .airport_to_book {
   text-align: center;
@@ -23,7 +23,7 @@ h2{
 }
 
 .modal-btn {
-  margin-top: 15px;
+  margin-top: 20%;
 }
 
 .form-control-inline {
@@ -31,8 +31,36 @@ h2{
   
 }
 
-.container {
-  display: flex;
-  display: inline-block;
+.search-box{
   display: inline;
+  padding: 1%;
+  margin-right: 15%;
+}
+
+.info_table {
+  margin: 1%;
+}
+
+.filter_table {
+  display: inline-block;
+  position:absolute;
+  margin-top: -15%;
+  margin-left: 20%;
+}
+
+.user_info {
+  display: inline-block;
+  position:absolute;
+  
+}
+
+.first_filter {
+  display: inline-block;
+  position:absolute;
+ 
+}
+.second_filter {
+  display: inline-block;
+  width: 25%;
+  margin-left: 50%;
 }

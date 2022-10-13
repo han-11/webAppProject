@@ -9,32 +9,14 @@
 
 
 
-<div class="row info_table ">
+<div class="row">
   <div class=""col-md-6 col-md-offset-3>
     <h3>Welcome!</h3>
     {% if session['passenger_id']%}
-      <h3>Passenger ID: {{session['passenger_id']}}</h3>
- 
+      <h3>Passenger ID: {{session['passenger_id']}}
       <a href="{{ url_for('log_out') }}" class="btn btn-secondary btn-sm">Logout</a> </h3>
     {% else %}
-     
-      <div class="row">
-        <div class=""col-md-6 col-md-offset-3>
-          <h3>Admin System</h3>
-          {% if session['staff_id']%}
-            <p>Staff ID: {{session['staff_id']}} </p>
-              <p> Staff Name : {{ session['staff_name'] }}</p>
-              {% if  session['is_manager'] == 1 %}
-                <p> Staff Type : Manager</p>
-              {% else %}
-                <p> Staff Type : Staff</p>
-              {% endif %}
-            <a href="{{ url_for('admin_logout') }}" class="btn btn-dark btn-sm">Logout</a> </p>
-          {% else %}
-          <p> Not login yet</p>
-          {% endif %}
-        </div>
-      </div>
+     <p> Not login yet</p>
     {% endif %}
   </div>
 </div>
@@ -49,7 +31,7 @@
   {% with messages = get_flashed_messages() %}
     {% if messages%}
       {% for message in messages %}
-        <div class="alert alert-success info_table " role="alert">
+        <div class="alert alert-success" role="alert">
           {{ message }}
         </div>
       {% endfor %}
@@ -59,7 +41,7 @@
     <h4 class="alert-heading">Congratulations!</h4>
     <p>You are successfully updated your detials.</p>
     <hr>
-    <p class="mb-0">You can check your booking information in the <a href="{{ url_for('booking_info', passenger_id=passenger_id) }}">Booking Information</a> page.</p>
+    <p class="mb-0">You can check your booking information in the <a href="{{ url_for('booking_info') }}">Booking Information</a> page.</p>
     
   </div>
 
@@ -68,18 +50,16 @@
 
 
 <div class="airport_to_book">
-  <h3 >Choose Airport to Make Booking</h3>
-  
-    <form action="/booking/flights" method="post">
-      <input type="hidden" name="passengerID" value="">
+  <h3 >Choose airport to make Booking</h3>
+    <form action="{{ url_for ('flight_list') }}" method="post">
         <select name="selected_airport"  >
-          <label for="airport">Choose The Departure Airport:</label> 
+          <label for="airport">Choose The Airport:</label>
             <option value=""  >--Please choose an airport--</option>
             {% for airport in airports %}
             <option value="{{airport}}">{{ airport }}</option>
             {% endfor %}   
         </select>
-        <input name="flight_date" type="date" id="flight_date_id">  
+        <input name="date" type=date min=2020-01-01>
       <button type="submit" class="btn btn-primary">Submit</button> 
     </form>
 </div>
@@ -88,7 +68,7 @@
 
 <br/>
 
-<div class="passenger_info info_table ">
+<div class="passenger_info">
 
   
   <h3 style="text-align:center"> Passenger Details</h3>
@@ -109,7 +89,7 @@
           <tbody>
             {% for info in passenger_info %}
             <tr>
-                <td>{{info.0}}</td>
+                <td>{{info.1}}</td>
                 <td>{{info.1 }}</td>
                 <td>{{info.2}}</td>
                 <td>{{info.3}}</td>
@@ -134,7 +114,7 @@
             <form action="{{url_for('update')}}" method="POST"> 
               <div class="form-group">
                 <label>First Name:</label>
-                <input type="hidden"  name="passengerID" value="{{info.0}}">
+                <input type="hidden"  name="passengerid" value="{{info.0}}">
                 <input type="text" class="form-control" id="firstname" name="firstname" value="{{info.1 }}">
               </div>
               <div class="form-group">
@@ -181,7 +161,7 @@
 
 <br/>
 
-    <div class="booking_info_display info_table ">
+    <div class="booking_info_display">
       <h1 style="text-align:center">Your Booking Information</h1>
       <table class="table table-hover" id="bookings">
       
@@ -206,7 +186,7 @@
                 <td>{{detail[6]}}</td>
                 <td>{{detail[7]}}</td>
                 {% if detail[5] > currentTime %}
-                <td><a href="/booking/cancel/{{detail[0]}}/{{ detail[3] }}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure to Cancel?')">Cancel</a></td>
+                <td><a href="/booking/cancel/{{ detail[3] }}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure to Cancel?')">Cancel</a></td>
                 {% endif %}
             </tr> 
             {% endfor %}
@@ -222,6 +202,13 @@
 
 
   {% endif %}
+
+
+  <script type="text/javascript">
+    $("#myBtn").click(function () {
+      $('#myModal').modal('show');
+    });
+  </script>
 
 {% endblock %}
 
