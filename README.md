@@ -34,5 +34,3 @@ but cancel and update customer info are shared bwtween customer session and admi
 4. After clicked flight id in flights list by admin, assumption was to set a new webpage for the information of each flight. But I managed to integreted  flights list and flight info in one html file, by implementing the {% if flight_info %} method.
 
 
-6. add flight option, datetime string  duration calculation, sunstract two datetime strings
-
