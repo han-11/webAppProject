@@ -1,4 +1,4 @@
-It manages customer bookings, flights, routes, airports and aircraft.
+This project is an airline management system, required by the assessment of MOCOMP636, It manages customer bookings, flights, routes, airports and aircraft.
 
  Using Python and HTML language, this website consists of two main parts: a public area for customers to look up flight details and book flights, and an administration area for staff to add and edit flight details, bookings and passenger information.
 
