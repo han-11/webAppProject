@@ -11,9 +11,10 @@
 
 <div class="row info_table ">
   <div class=""col-md-6 col-md-offset-3>
-    <h3>Welcome!</h3>
+    
     {% if session['passenger_id']%}
-      <h3>Passenger ID: {{session['passenger_id']}}</h3>
+      <h5>Welcome!</h5>
+      <p>Passenger ID: {{session['passenger_id']}}</p>
  
       <a href="{{ url_for('log_out') }}" class="btn btn-secondary btn-sm">Logout</a> </h3>
     {% else %}
@@ -55,13 +56,6 @@
       {% endfor %}
      {% endif %} 
   {% endwith %}
-  <div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">Congratulations!</h4>
-    <p>You are successfully updated your detials.</p>
-    <hr>
-    <p class="mb-0">You can check your booking information in the <a href="{{ url_for('booking_info', passenger_id=passenger_id) }}">Booking Information</a> page.</p>
-    
-  </div>
 
 
 {% else: %}
@@ -70,13 +64,13 @@
 <div class="airport_to_book">
   <h3 >Choose Airport to Make Booking</h3>
   
-    <form action="/booking/flights" method="post">
-      <input type="hidden" name="passengerID" value="">
+    <form action="/booking/flights/{{passenger_id}}" method="post">
+      <input type="hidden" name="passengerID" value="{{passenger_id}}">
         <select name="selected_airport"  >
           <label for="airport">Choose The Departure Airport:</label> 
             <option value=""  >--Please choose an airport--</option>
             {% for airport in airports %}
-            <option value="{{airport}}">{{ airport }}</option>
+            <option value="{{airport[1]}}">{{ airport[1] }}</option>
             {% endfor %}   
         </select>
         <input name="flight_date" type="date" id="flight_date_id">  
@@ -85,7 +79,7 @@
 </div>
 
 
-
+<!-- display passenger's information -->
 <br/>
 
 <div class="passenger_info info_table ">
@@ -222,6 +216,8 @@
 
 
   {% endif %}
+
+
 
 {% endblock %}
 

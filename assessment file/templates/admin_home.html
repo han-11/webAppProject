@@ -18,7 +18,7 @@
         {% else %}
           <p> Staff Type : Staff</p>
         {% endif %}
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-link btn-sm">Logout</a> </h3>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a> </h3>
     {% else %}
      <p> Not login yet</p>
     {% endif %}
@@ -29,25 +29,23 @@
 <div class="jumbotron">
   <h1 class="display-4">Passenger Management Portal</h1>
   <p class="lead">Get access to manage cutomer's profile and booking information.</p>
-  <hr class="my-4">
-  <p>Manage Passengers List</p>
+ 
   <p class="lead">
     <a class="btn btn-primary btn-dark" href="{{ url_for('admin_passengers') }}" role="button">Passenger List</a>
   </p>
+  <hr class="my-4">
 </div>
 
 <div class="jumbotron">
   <h1 class="display-4">Flight Management Portal</h1>
   <p class="lead">Get access to manage and update flights information.</p>
-  <hr class="my-4">
-  <p>Manage Flights.</p>
+ 
   <p class="lead">
     <a class="btn btn-primary btn-dark" href="{{ url_for('admin_flight_list')}}"role="button">Flight List</a>
   </p>
+  <hr class="my-4">
 </div>
 
-<a href="{{ url_for('admin_passengers') }}">Manage Passengers List</a>
-<a href="{{ url_for('admin_flight_list')}}">Manage Flights</a>
 
 
 {% endblock %}

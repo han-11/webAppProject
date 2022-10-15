@@ -22,7 +22,7 @@
       <tbody>
         {% for result in departures %}
         <tr>
-          <td><a href="#">{{result[0]}}</a></td>
+          <td>{{result[0]}}</td>
           <td>{{result[1]}}</td>
           <td>{{result[2]}}</td>
           <td>{{result[3]}}</td>
@@ -69,7 +69,7 @@
                   
                   </div>
                   <div class="modal-footer">
-                    <a href="/booking/confirm/{{result[0]}}" class="btn btn-success ">Confirm</a>
+                    <a href="/booking/confirm/{{passenger_id}}/{{result[0]}}" class="btn btn-success ">Confirm</a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                   </div>
               </div>

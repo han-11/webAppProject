@@ -2,9 +2,7 @@ body {
   background-color: #AEBDCA;
   
   }
-.logo {
-  float: right;
-}
+
 
 h2{
   font-size: 1.5em;
@@ -22,24 +20,22 @@ footer {
   
 }
 
+
+.flight_details { 
+  margin: 9% 1% 1% 1%;; 
+}
+
 .modal-btn {
   margin-top: 20%;
 }
 
-.form-control-inline {
-  display: inline;
-  
+.first_filter {
+  display: inline-block;
+  position:absolute;
+  margin-left: 18%;
+  margin-top:-2%;
 }
 
-.search-box{
-  display: inline;
-  padding: 1%;
-  margin-right: 15%;
-}
-
-.info_table {
-  margin: 1%;
-}
 
 .filter_table {
   display: inline-block;
@@ -48,19 +44,58 @@ footer {
   margin-left: 20%;
 }
 
+
+.form-control-inline {
+  display: inline;
+  
+}
+
+.info_table {
+  margin: 1%;
+}
+
+.jumbotron {
+  background: rgba(255,255,255,0.4);
+  margin: 50px 400px;
+  height: 300px;
+  padding-top: 50px;
+  padding-bottom: 80px;
+  text-align: center;
+}
+
+
+.logo {
+  float: right;
+}
+
+
+.search-box{
+  display: inline;
+  padding: 1%;
+  margin-right: 15%;
+}
+
+
+
 .user_info {
   display: inline-block;
   position:absolute;
   
 }
 
-.first_filter {
-  display: inline-block;
-  position:absolute;
- 
-}
+
+
 .second_filter {
   display: inline-block;
-  width: 25%;
-  margin-left: 50%;
+  width: 22%;
+  margin-left: 35%;
+  margin-top: 3%;
 }
+
+.second_filter .btn {
+  display: inline-block;
+  position:absolute;
+  margin-left: 11.5%;
+  margin-top: -1.5%;
+}
+

@@ -17,7 +17,7 @@
         {% else %}
           <p> Staff Type : Staff</p>
         {% endif %}
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-dark btn-sm">Logout</a> </p>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a> </p>
     {% else %}
      <p> Not login yet</p>
     {% endif %}
@@ -25,13 +25,39 @@
 </div>
 
 <br>
-<!-- Display information for each flight -->
 
+<!-- flask message after command executed -->
+
+{% if msg_sent: %}
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages%}
+      {% for message in messages %}
+        <div class="alert alert-success info_table " role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+     {% endif %} 
+  {% endwith %}
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">Congratulations!</h4>
+    <p>You are successfully updated your detials.</p>
+    <hr>
+    <p class="mb-0">You can check your booking information in the <a href="{{ url_for('booking_info', passenger_id=passenger_id) }}">Booking Information</a> page.</p>
+    
+  </div>
+
+
+{% else: %}
+
+
+<!-- Display information of each flight -->
 
 {% if flight_info %}
-  <h5> Flight ID: {{flight_id}}</h5>
-    <div class="flight_passenger info_table">
-      <h3 style="text-align:center">Flight List</h3>
+
+    <div class="flight_passenger flight_details">
+      <h5> Flight ID: {{flight_id}}</h5>
+      <h3 style="text-align:center">Flight Details</h3>
       <table class="table table-hover" id="bookings">
         <thead>
           <tr>
@@ -58,6 +84,9 @@
     </div>
 
 {% else %}
+
+
+
 <!-- Button allows manager to add flights on flight Dashboard page -->
 <br>
 
@@ -109,11 +138,11 @@
                     </div>
         
                     <div class="form-group">
-                      <label>Aircraft Regmark</label>
-                      <select name="regmark" >
+                      <label for="regmark">Aircraft Regmark</label>
+                      <select name="regmark" id="regmark">
                         <option value=""  >--Aircraft Regmark--</option>
-                        {% for flight in all_flights %}
-                        <option value="{{flight.9}}">{{flight.9 }}</option>
+                        {% for regmark in regmarks %}
+                        <option value="{{regmark}}">{{regmark}}</option>
                         {% endfor %}   
                       </select>
                     </div>
@@ -154,9 +183,9 @@
       <div class="first_filter">
         <form action="{{ url_for('flight_search') }}" method="post">        
             <select name="departure" >
-                <option value=""  >--Please choose a departure airport--</option>
-                {% for flight in all_flights %}
-                <option value="{{flight.6}}">{{flight.6}}</option>
+                <option value=""  >--Filter by departure airport--</option>
+                {% for airport in airport_names %}
+                <option value="{{airport}}">{{airport}}</option>
                 {% endfor %}   
             </select> 
           <button type="submit" class="btn btn-dark btn-sm">Submit</button> 
@@ -164,9 +193,9 @@
       </div>
       <div class="second_filter">
         <form action="{{ url_for('flight_date_search') }}" method="post">
-          <input type="date" name="from_date" class="form-control" placeholder="From Date">
-          <input type="date" name="to_date" class="form-control" placeholder="To Date">
-          <input type="submit" name="search" value="Filter By Date" class="btn btn-dark btn-sm">
+          <input type="date" name="from_date" class="form-control" min="{{date_from}}" max="{{date_to}}" placeholder="From Date">
+          <input type="date" name="to_date" class="form-control" min="{{date_from}}" max="{{date_to}}" placeholder="To Date">
+          <input type="submit" name="search" value="Filter By Date" class="btn btn-dark btn-sm" >
         </form>
       </div>
     </div>
@@ -174,7 +203,9 @@
 
 <!-- Returns the flight list  -->
 <br>
-<h3>{{numrows}} Records Found</h3>
+
+
+
 <div class="flight_info info_table ">
   <h3 style="text-align:center">Flight List</h3>
   <table class="table table-hover" id="bookings">
@@ -212,7 +243,8 @@
       </tr> 
 
 
-          <!-- Modal to confirm flight booking-->
+   <!-- Modal to edit flight details-->
+
           <div class="modal fade" id="myModal{{flight.0}}" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
             <div class="modal-dialog">
               <div class="modal-content">
@@ -223,59 +255,80 @@
 
                     <form action="/admin/edit_flight/{{flight.0}}" method="POST">
 
-                      <div class="form-group">
-                        <label>Flight Date </label>
-                        <input type="text" name="flight_date" class="form-control" id="Flight Date" placeholder="{{flight.3}}"  >
-                      </div>
+                      {% if  session['is_manager'] == 1 %}
 
-                      <div class="form-group">
-                        <label>Departure Time</label>
-                        <input type="text" name="deptime" class="form-control" id="Departure Time" placeholder="{{flight.4}}" >
-                      </div>
+                        <div class="form-group">
+                          <label for="regmark">Aircraft Reg Mark</label>
+                          <select name="regmark" id="regmark">
+                            <option class="dropdown-item" value="{{flight.11}}">{{flight.11}}</option>
+                            {% for regmark in regmarks %}
+                            <option value="{{regmark}}">{{regmark}}</option>
+                            {% endfor %}    
+                            </select>
+                            
+                        </div>
 
-                      <div class="form-group">
-                        <label>Arrival Time</label>
-                        <input type="text" name="arrtime" class="form-control" id="Arrival Time" placeholder="{{flight.5}}" >
-                      </div>
 
-                      <div class="form-group">
-                        <label>Estimated Departure Time</label>
-                        <input type="text" name="estdep" class="form-control" id="Estimated Departure Time" placeholder="{{flight.6}}" >
-                      </div>
+                          <div class="form-group">
+                            <label>Flight Date </label>
+                            <input type="text" name="flight_date" class="form-control" id="Flight Date" value="{{flight.3}}"  >
+                          </div>
+                        
 
-                      <div class="form-group">
-                        <label>Estimated Arrival Time</label>
-                        <input type="text" name="estarr" class="form-control" id="Estimated Arrival Time" placeholder="{{flight.7}}" >
-                      </div>
-  
-                      <div class="form-group">
-                        <select name="status" >
-                          <label>Flight Status</label>
-                          <option class="dropdown-item" value="{{flight.15}}">{{flight.15}}</option>
-                          {% for status in all_status %}
-                          <option class="dropdown-item" value="{{status}}">{{status[0]}}</option>
-                          {% endfor %}   
-                        </select> 
-                      </div>
+                        <div class="form-group">
+                          <label>Flight NUmber </label>
+                          <input type="text" name="flight_num" class="form-control" id="Flight Number" value="{{flight.1}}"  >
+                        </div>
+                        
 
-                      <div class="form-group">
-                        <select name="status" >
-                          <label>Aircraft Reg Mark</label>
-                          <option class="dropdown-item" value="{{flight.11}}">{{flight.11}}</option>
-                          {% for regmark in all_regmarks %}
-                          <option class="dropdown-item" value="{{regmark}}">{{regmark[0]}}</option>
-                          {% endfor %}   
+                        <div class="form-group">
+                          <label>Week Number </label>
+                          <input type="text" name="week_num" class="form-control" id="Week Number" value="{{flight.2}}"  >
+                        </div>
+                      
+
+                      {% endif %}
+
+                        <div class="form-group">
+                          <label>Departure Time</label>
+                          <input type="text" name="deptime" class="form-control" id="Departure Time" value="{{flight.4}}" >
+                        </div>
+
+                        <div class="form-group">
+                          <label>Arrival Time</label>
+                          <input type="text" name="arrtime" class="form-control" id="Arrival Time" value="{{flight.5}}" >
+                        </div>
+
+                        <div class="form-group">
+                          <label>Estimated Departure Time</label>
+                          <input type="text" name="estdep" class="form-control" id="Estimated Departure Time" value="{{flight.6}}" >
+                        </div>
+
+                        <div class="form-group">
+                          <label>Estimated Arrival Time</label>
+                          <input type="text" name="estarr" class="form-control" id="Estimated Arrival Time" value="{{flight.7}}" >
+                        </div>
+    
+                        <div class="form-group">
+                          <label for="status">Flight Status</label>
+                          <select name="status" id="status">
+                            <option class="dropdown-item" value="{{flight.15}}">{{flight.15}}</option>
+                            {% for status in all_status %}
+                            <option class="dropdown-item" value="{{status}}">{{status}}</option>
+                            {% endfor %}   
                           </select> 
-                      </div>
+                        </div>
 
+
+                        <div class="modal-footer">
+                          <input type="submit" name="submit_button" class="btn btn-success" value="Confirm">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                        
                     </form>
                    
                   
-                  </div>
-                  <div class="modal-footer">
-                    <a href="/admin/edit_flight/{{flight.0}}" class="btn btn-success ">Confirm</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                  </div>
+                 
               </div>
             </div>
           </div>
@@ -292,5 +345,5 @@
 
 
 
-
+{% endif %}
 {% endblock %}

@@ -1,52 +1,58 @@
 {% extends "base.html" %}
 
+{% block head %}
+  {{ super() }}
+  <style>
+      body {
+          background-image: url('../static/img/pinksky.jpg');
+      }
+  </style>
+{% endblock %}
+
 {% block title %}Home{% endblock %}
+
+
 
 {% block content %}
 
 
-<div class="row row-cols-1 row-cols-md-2 g-4">
-  <div class="col">
-    <div class="card h-100">
-     
-      <div class="card-body">
-         <h5 class="card-title">Check the Departure & Arrival Timetable</h5> 
-          <form action="{{ url_for ('arrival_departure') }}" method="post">
-              <select name="selected_airport"  >
-                <label for="airport">Choose The Airport:</label>
-                  <option value=""  >--Please choose an airport--</option>
-                  {% for airport in airports %}
-                  <option value="{{airport}}">{{ airport }}</option>
-                  {% endfor %}   
-              </select>
-            <button type="submit" class="btn btn-dark">Submit</button> 
-          </form>
-        </div>
-      </div>
-    </div>
+<div class="customer_home">
 
-
-    <div class="col">
-      <div class="card h-100">
-        
-        <div class="card-body">
-          <!-- <a href="{{ url_for ('log_in') }}"> 
-            <h5 class="card-title">Log in to book your flight</h5>
-           </a> -->
-           <h5 class="card-title">Log in to make booking</h5> 
-           <form action="{{ url_for ('log_in')}}" method="post" >
-            <label>Name</label>
-            <input type="text" placeholder="Name" name="customername">
-            <label>UserID</label>
-            <input type="text" placeholder="Email Address" name="userid">
-            <button type="submit" class= "btn btn-dark" >Login</button>
-          </form>
-        
-        </div>
-      </div>
-    </div>
-    
-    
+  <div class="jumbotron customer_homepage">
+    <h5 class="display-4">Check Flight Timetable</h5>
+    <form action="{{ url_for ('arrival_departure') }}" method="post">
+      <select name="selected_airport"  >
+        <label for="airport">Choose The Airport:</label>
+          <option value=""  >--Please choose an airport--</option>
+          {% for airport in airports %}
+          <option value="{{airport[0]}}">{{ airport[1] }}</option>
+          {% endfor %}   
+      </select>
+    <button type="submit" class="btn btn-dark">Submit</button> 
+  </form>
   </div>
+  
+  <hr class="my-4">
+  
+  
+  <div class="jumbotron customer_homepage">
+    <h4 class="display-4">Log in to make booking</h4> 
+    <form action="{{ url_for ('log_in')}}" method="post" >
+     <label>Name</label>
+     <input type="text" placeholder="Name" name="customername">
+     <label>UserID</label>
+     <input type="text" placeholder="Email Address" name="userid">
+     <button type="submit" class= "btn btn-dark" >Login</button>
+    </form>
+  </div>
+  
+
+
+</div>
+
+
+    
+    
+
  
 {% endblock %}
