@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Booking Information{% endblock %}
+
+
+{% block content %}
+
+
+
+
+
+<div class="row info_table ">
+  <div class=""col-md-6 col-md-offset-3>
+    
+    {% if session['passenger_id']%}
+      <h5>Welcome!</h5>
+      <p>Passenger ID: {{session['passenger_id']}}</p>
+ 
+      <a href="{{ url_for('log_out') }}" class="btn btn-secondary btn-sm">Logout</a> </h3>
+    {% else %}
+     
+      <div class="row">
+        <div class=""col-md-6 col-md-offset-3>
+          <h3>Admin System</h3>
+          {% if session['staff_id']%}
+            <p>Staff ID: {{session['staff_id']}} </p>
+              <p> Staff Name : {{ session['staff_name'] }}</p>
+              {% if  session['is_manager'] == 1 %}
+                <p> Staff Type : Manager</p>
+              {% else %}
+                <p> Staff Type : Staff</p>
+              {% endif %}
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-dark btn-sm">Logout</a> </p>
+          {% else %}
+          <p> Not login yet</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div>
+
+</div>
+
+
+{% if msg_sent: %}
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages%}
+      {% for message in messages %}
+        <div class="alert alert-success info_table " role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+     {% endif %} 
+  {% endwith %}
+
+
+{% else: %}
+
+
+<div class="airport_to_book">
+  <h3 >Choose Airport to Make Booking</h3>
+  
+    <form action="/booking/flights/{{passenger_id}}" method="post">
+      <input type="hidden" name="passengerID" value="{{passenger_id}}">
+        <select name="selected_airport"  >
+          <label for="airport">Choose The Departure Airport:</label> 
+            <option value=""  >--Please choose an airport--</option>
+            {% for airport in airports %}
+            <option value="{{airport[1]}}">{{ airport[1] }}</option>
+            {% endfor %}   
+        </select>
+        <input name="flight_date" type="date" id="flight_date_id">  
+      <button type="submit" class="btn btn-primary">Submit</button> 
+    </form>
+</div>
+
+
+<!-- display passenger's information -->
+<br/>
+
+<div class="passenger_info info_table ">
+
+  
+  <h3 style="text-align:center"> Passenger Details</h3>
+ 
+      <table id="passenger_details" class="table table-hover passenger_info-result">
+          <thead>
+            <tr>
+                <th>PassengerID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Passport</th>
+                <th>Date of Birth</th>
+                <th>Loyalty Tier</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for info in passenger_info %}
+            <tr>
+                <td>{{info.0}}</td>
+                <td>{{info.1 }}</td>
+                <td>{{info.2}}</td>
+                <td>{{info.3}}</td>
+                <td>{{info.4}}</td>
+                <td>{{info.5}}</td>
+                <td>{{info.6}}</td>
+                <td>{{info.7}}</td>
+                <td><a  type="button" class="btn btn-warning" id="myBtn" data-bs-toggle="modal" data-bs-target="#myModal" href="#" >
+                  Update </a></td>
+              </tr>
+        
+                      
+
+                <!-- Modal Edit Customer Details-->
+  <div class="modal fade" id="myModal"  role="dialog"  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Update Information</h4>
+          </div>
+          <div class="modal-body" id="modal-body">
+            <form action="{{url_for('update')}}" method="POST"> 
+              <div class="form-group">
+                <label>First Name:</label>
+                <input type="hidden"  name="passengerID" value="{{info.0}}">
+                <input type="text" class="form-control" id="firstname" name="firstname" value="{{info.1 }}">
+              </div>
+              <div class="form-group">
+                  <label>Last Name:</label>
+                    <input type="text" class="form-control" id="lastname" name="lastname" value="{{info.2}}">
+                </div>
+                <div class="form-group">
+                  <label>Email:</label>
+                  <input type="text" class="form-control" id="email" name="email" value="{{info.3}}">
+                </div>
+                <div class="form-group">
+                  <label>Phone:</label>
+                  <input type="text" class="form-control" id="phone" name="phone" value="{{info.4}}">
+                </div>
+                <div class="form-group">
+                  <label>Passport:</label>
+                  <input type="text" class="form-control" id="passport" name="passport" value="{{info.5}}">
+              </div>
+              <div class="form-group">
+                  <label>Date of Birth:</label>
+                  <input type="text" class="form-control" id="dob" name="dob" value="{{info.6}}">
+              </div>
+                <div class="form-group">
+                  <button class="btn btn-primary modal-btn" type="submit">Update</button>
+                </div>              
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</tbody>
+</table> 
+  </div> 
+  
+
+<br/>
+
+
+
+
+<br/>
+
+    <div class="booking_info_display info_table ">
+      <h1 style="text-align:center">Your Booking Information</h1>
+      <table class="table table-hover" id="bookings">
+      
+       
+          <thead>
+            <tr>
+              {% for name in column_names %}
+                <th>{{name}}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+        
+          <tbody>
+            {% for detail in booking_details %}
+            <tr>
+                <td>{{detail[0]}}</td>
+                <td>{{detail[1]}}</td>
+                <td>{{detail[2]}}</td>
+                <td>{{detail[3]}}</td>
+                <td>{{detail[4]}}</td>
+                <td>{{detail[5]}}</td>
+                <td>{{detail[6]}}</td>
+                <td>{{detail[7]}}</td>
+                {% if detail[5] > currentTime %}
+                <td><a href="/booking/cancel/{{detail[0]}}/{{ detail[3] }}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure to Cancel?')">Cancel</a></td>
+                {% endif %}
+            </tr> 
+            {% endfor %}
+          </tbody>
+        </table>
+     
+    </div>
+
+
+
+    
+    
+
+
+  {% endif %}
+
+
+
+{% endblock %}
+

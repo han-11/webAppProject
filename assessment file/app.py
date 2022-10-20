@@ -3,15 +3,19 @@ from os import curdir
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 import mysql.connector
+from mysqlx import IntegrityError
 import connect
 
-
+# Set current time as "2022-10-28"
 CURRENTTIME = "2022-10-28"
 
 
 app = Flask(__name__)
+# secret key for session
 app.secret_key = "secret"
 db_connection = None
+
+# function for sql connection
 
 
 def getCursor():
@@ -28,13 +32,17 @@ def getCursor():
         return db_connection
 
 
+# home route, renturn landing page, allow user to login and check arrival and departure flights
 @app.route('/')
 def home():
     cur = getCursor()
     cur.execute('''SELECT DISTINCT  AirportCode, AirportName FROM airport
                     JOIN route on route.DepCode = airport.AirportCode;''')
     airports = cur.fetchall()
+# query to get all airports from database
     return render_template('home.html', airports=airports)
+
+# use customer id to check if the customer is in the database, if not, return register page
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -45,17 +53,22 @@ def log_in():
         cur.execute(
             "select * from passenger where EmailAddress = %s; ", (email,))
         passenger = cur.fetchall()
-
+# check if the customer is in the database
         if passenger:
             passenger_id = passenger[0][0]
             session['logged_in'] = True
             session['passenger_id'] = passenger_id
             session['user'] = 'customer'
+# allow customer to make bookings after login
             return redirect(url_for('booking_info', passenger_id=session['passenger_id']))
+# direct user to register page if the customer is not in the database
         else:
+            flash('You are not a registered user, please register first')
             return redirect(url_for('register'))
 
-    return render_template('login.html')
+    return render_template('home.html')
+
+#  register page, allow user to register as a new customer
 
 
 @ app.route('/register', methods=['GET', 'POST'])
@@ -71,15 +84,16 @@ def register():
         cur = getCursor()
         cur.execute('''INSERT INTO passenger(FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth)
                         VALUES (%s,%s,%s,%s,%s,%s);''', (firstname, lastname, email, phone, passport, dob))
-
+# if user submit the form, return message says registration is successful and direct user to login page
         return render_template('register.html', msg_sent=True)
-        # return "<h1>Successfully Registered! Please Sign In to Make Booking.</h1>"
 
     return render_template('register.html', msg_sent=False)
 
 
+# Shows appropriate arrivals and departures information for a selected airport from 2 days before the current day to 5 days after the current day.
 @ app.route('/arrival&departure', methods=['GET', 'POST'])
 def arrival_departure():
+    # get the airport code from the form on the home page
     airport_code = request.form.get("selected_airport")
     cur = getCursor()
     cur.execute('''SELECT f.FlightID, r.FlightNum, r.DepCode,  a.AirportName,
@@ -90,8 +104,9 @@ def arrival_departure():
                     where r.ArrCode = %s
                     AND f.FlightDate BETWEEN DATE_SUB(%s, INTERVAL 2 DAY)
                     AND DATE_ADD(%s, INTERVAL 5 DAY) ;''', (airport_code, CURRENTTIME, CURRENTTIME))
-
+# query result for arrival flights
     arrivals = cur.fetchall()
+# column names for columns in the table
     column_names = [item[0] for item in cur.description]
     cur = getCursor()
     cur.execute('''SELECT f.FlightID, r.FlightNum, r.ArrCode,  a.AirportName,
@@ -102,9 +117,11 @@ def arrival_departure():
                     where r.DepCode = %s
                     AND f.FlightDate BETWEEN DATE_SUB(%s, INTERVAL 2 DAY)
                     AND DATE_ADD(%s, INTERVAL 5 DAY) ;''', (airport_code, CURRENTTIME, CURRENTTIME))
+# query result for departure flights
     departures = cur.fetchall()
-
     return render_template('arrDep.html', arrivals=arrivals, column_names=column_names, departures=departures)
+
+# webpage to show customer's personal details, booking list,  allow customer to make booking and cancel booking
 
 
 @ app.route('/booking', methods=['GET', 'POST'])
@@ -117,7 +134,7 @@ def booking_info():
                                     WHERE PassengerID = %s;''', (passenger_id,))
             passenger_info = cur.fetchall()
             col_names = [item[0] for item in cur.description]
-
+# if customer has made booking, show the booking list
             cur = getCursor()
             cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName, f.FlightID,
                                     f.FlightNum, f.FlightDate, f.DepTime, f.ArrTime
@@ -134,12 +151,13 @@ def booking_info():
                 "SELECT DISTINCT  AirportCode, AirportName FROM airport JOIN route on route.DepCode = airport.AirportCode;")
             airports = cur.fetchall()
             date_object = datetime.strptime(CURRENTTIME, '%Y-%m-%d').date()
-            return render_template('app_info_page.html', passenger_id=session['passenger_id'], passenger_info=passenger_info, col_names=col_names,
+            return render_template('customer_info_page.html', passenger_id=session['passenger_id'], passenger_info=passenger_info, col_names=col_names,
                                    column_names=column_names, booking_details=booking_details, airports=airports, currentTime=date_object)
     except:
         return "<h1> Please Sign In or Register to Make Booking.</h1>"
 
 
+# function to allow customer to edit their personal details
 @ app.route('/booking/update', methods=['GET', 'POST'])
 def update():
     if request.method == 'POST':
@@ -150,31 +168,33 @@ def update():
         phone = request.form.get("phone")
         passport = request.form.get("passport")
         dob = request.form.get("dob")
-        print(passenger_id, firstname, lastname, email, phone, passport, dob)
         cur = getCursor()
         cur.execute('''UPDATE passenger SET FirstName = %s, LastName = %s, EmailAddress = %s,
                     PhoneNumber = %s, PassportNumber = %s, DateOfBirth = %s
                     where PassengerID = %s;''', (firstname, lastname, email, phone, passport, dob, passenger_id))
+#  flask message to show the update is successful
         flash("Successfully Updated!")
-        return render_template('app_info_page.html', msg_sent=True)
+        return render_template('customer_info_page.html', msg_sent=True)
 
-    return render_template('app_info_page.html', msg_sent=False)
+    return render_template('customer_info_page.html', msg_sent=False)
 
 
+# function to allow customer to cancel their booking which after the current date
 @ app.route('/booking/cancel/<string:passenger_id>/<string:flight_id>', methods=['GET', 'POST'])
 def cancel(passenger_id, flight_id):
     cur = getCursor()
     cur.execute('''DELETE FROM passengerFlight
                     WHERE FlightID = %s AND PassengerID = %s; ''', (flight_id, passenger_id))
     flash(f" Your Flight {flight_id} Successfully Cancelled!")
-    return render_template('app_info_page.html', msg_sent=True)
+    return render_template('customer_info_page.html', msg_sent=True)
 
 
+# function to allow customer to make booking
 @ app.route('/booking/flights/<string:passenger_id>', methods=['POST'])
 def flight_list(passenger_id):
     if request.method == "POST":
         airport_name = request.form.get("selected_airport")
-        print(airport_name)
+        # get the selected date from the form
         date = request.form.get("flight_date")
         cur = getCursor()
         cur.execute(''' SELECT FlightID, FlightNum, result.AirportName as Departure, a.AirportName as Arrival,
@@ -195,21 +215,26 @@ def flight_list(passenger_id):
                 AND f.FlightDate BETWEEN %s
                 AND DATE_ADD(%s , INTERVAL 7 DAY)) AS result
                 JOIN airport as a on a.AirportCode = result.ArrCode ; ''', (airport_name, date, date))
+# get all the departue flights from the selected airport and for the date between the selected date and 7 days after
         departure_flights = cur.fetchall()
         column_names = [item[0] for item in cur.description]
         return render_template('booking.html', departures=departure_flights, column_names=column_names, passenger_id=passenger_id)
 
 
+# let the user to confirm the flight information to book
 @ app.route('/booking/confirm/<string:passenger_id>/<string:flight_id>', methods=['GET', 'POST'])
 def book_flight(passenger_id, flight_id):
-    cur = getCursor()
-    cur.execute('''INSERT INTO passengerFlight VALUES (%s, %s);''',
-                (flight_id, passenger_id, ))
-
+    try:
+        cur = getCursor()
+        cur.execute('''INSERT INTO passengerFlight VALUES (%s, %s);''',
+                    (flight_id, passenger_id, ))
+    except IntegrityError:
+        flash("You have already booked this flight!")
     flash("Successfully Booked!")
-    return render_template('app_info_page.html', msg_sent=True)
+    return render_template('customer_info_page.html', msg_sent=True)
 
 
+# function to allow customer to logout and terminate the session
 @ app.route('/logout')
 def log_out():
     session.pop('logged_in', None)
@@ -217,7 +242,9 @@ def log_out():
     return redirect(url_for('home'))
 
 
-@ app.route('/admin', methods=['GET', 'POST'])
+# admin home page to be reached by the admin typing on the end of the home page
+# display login function for admin, allow admin choose their name from a list, no password required
+@ app.route('/admin', methods=['GET'])
 def admin_login():
     cur = getCursor()
     cur.execute('''SELECT FirstName, StaffID
@@ -226,17 +253,17 @@ def admin_login():
     return render_template('admin_login.html', staffs=staffs)
 
 
+# check staff level and get staff identity
 @ app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login_form():
     if request.method == 'POST':
         name = request.form.get("staff_id")
-        print(name)
+
         staffid = name
         cur = getCursor()
         cur.execute(
             '''SELECT * FROM staff WHERE StaffID = %s ;''', (staffid, ))
         staff = cur.fetchone()
-        print(staff)
 
         if staff:
             session['logged_in'] = True
@@ -251,19 +278,20 @@ def admin_login_form():
     return redirect(url_for('admin_login'))
 
 
+# staff level is shown on the page, manager has more access than the staff
+# two portals for passenger and flight list
 @ app.route('/admin/home', methods=['GET', 'POST'])
 def admin_home():
     if session['logged_in'] == True:
         if session['is_manager'] == 1:
-            print("is manager")
             return render_template('admin_home.html', is_manager=True)
         else:
-            print("is not manager")
             return render_template('admin_home.html', is_manager=False)
     else:
         return redirect(url_for('admin_login'))
 
 
+#  show passenger list for the admin to check
 @ app.route('/admin/passengers', methods=['GET', 'POST'])
 def admin_passengers():
     cur = getCursor()
@@ -274,6 +302,7 @@ def admin_passengers():
     return render_template('admin_passengers.html', passengers=passengers, column_names=column_names)
 
 
+#  function to allow admin to add new passenger
 @ app.route('/admin/add_passenger', methods=['GET', 'POST'])
 def add_passenger():
     if request.method == "POST":
@@ -292,6 +321,8 @@ def add_passenger():
     return render_template('admin_passengers.html', msg_sent=True)
 
 
+# function to allow admin to edit passenger information by clicking on passenger id
+# this function shared the same html page with customer portal
 @ app.route('/admin/passengerinfo/<string:passenger_id>', methods=['GET', 'POST'])
 def passenger_profile(passenger_id):
     if session['logged_in'] == True:
@@ -310,7 +341,6 @@ def passenger_profile(passenger_id):
                                     WHERE p.PassengerID = %s
                                     ORDER BY f.FlightDate;''', (passenger_id, ))
         booking_details = cur.fetchall()
-        print(booking_details)
         column_names = [item[0] for item in cur.description]
 
         cur = getCursor()
@@ -318,10 +348,11 @@ def passenger_profile(passenger_id):
             "SELECT DISTINCT  AirportCode, AirportName FROM airport JOIN route on route.DepCode = airport.AirportCode;")
         airports = cur.fetchall()
         date_object = datetime.strptime(CURRENTTIME, '%Y-%m-%d').date()
-        return render_template('app_info_page.html', passenger_id=passenger_id, passenger_info=passenger_info, col_names=col_names,
+        return render_template('customer_info_page.html', passenger_id=passenger_id, passenger_info=passenger_info, col_names=col_names,
                                column_names=column_names, booking_details=booking_details, airports=airports, currentTime=date_object)
 
 
+# allow admin to search passenger by lastname
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == "POST":
@@ -343,6 +374,7 @@ def search():
     return render_template('search.html', passengers=passengers, column_names=column_names)
 
 
+# display flight list, sorted by flight date, time and departure airport
 @ app.route('/admin/flight_list', methods=['GET', 'POST'])
 def admin_flight_list():
     cur = getCursor()
@@ -391,11 +423,11 @@ def admin_flight_list():
                            date_from=date_from, date_to=date_to)
 
 
+# filter function for seatch flight by departure airport
 @ app.route('/admin/flight_search', methods=['GET', 'POST'])
 def flight_search():
     if request.method == 'POST':
         departure = request.form.get('departure')
-        print(departure)
         if departure == '':
             return redirect(url_for('admin_flight_list'))
         else:
@@ -429,16 +461,16 @@ def flight_search():
             searched_flights = cur.fetchall()
             column_names = [item[0] for item in cur.description]
             numrows = int(cur.rowcount)
-            print(numrows)
+
             return render_template('admin_flights.html',  column_names=column_names, all_flights=searched_flights, numrows=numrows)
 
 
+# filter function to search flight by flight date
 @ app.route('/admin/flight_date_search', methods=['GET', 'POST'])
 def flight_date_search():
 
     if request.method == 'POST':
         search_word = request.form.get('search_word')
-        print(search_word)
         if search_word == '':
             return redirect(url_for('admin_flight_list'))
         else:
@@ -477,6 +509,8 @@ def flight_date_search():
     return render_template('admin_flights.html',  column_names=column_names, all_flights=searched_flights, numrows=numrows)
 
 
+# show all passengers for selected flight, the list is numbered in order
+# admin can click passenger's id to check passenger's profile, including all flights he/she has booked, edit passenger's details, and make booking for him/her
 @ app.route('/admin/flight_info/<string:flight_id>', methods=['GET', 'POST'])
 def flight_info(flight_id):
     cur = getCursor()
@@ -496,6 +530,7 @@ def flight_info(flight_id):
     return render_template('admin_flights.html', flight_id=flight_id, columns=columns, flight_info=flight_info)
 
 
+# allow manager to add new flight individually
 @ app.route('/admin/add_flight', methods=['GET', 'POST'])
 def add_flight():
     if request.method == 'POST':
@@ -507,7 +542,6 @@ def add_flight():
         arrtime = request.form.get('arrtime')
         arrtime_object = datetime.strptime(arrtime, '%H:%M:%S')
         duration = arrtime_object - deptime_object
-        print(duration)
         aircraft = request.form.get('regmark')
         cur = getCursor()
         cur.execute('''SET FOREIGN_KEY_CHECKS = 0;''')
@@ -518,11 +552,11 @@ def add_flight():
                     (flight_num, week_num, flight_date, deptime_object,
                         arrtime_object, duration, deptime_object, arrtime_object, 'On time', aircraft))
         cur.execute('''SET FOREIGN_KEY_CHECKS = 0;''')
-        print("Add Flight")
         flash('Flight added')
     return redirect(url_for('admin_flight_list', msg_sent=True))
 
 
+#  allow manager to copy all flights which copied from latest week
 @ app.route('/admin/add_all_flights', methods=['GET', 'POST'])
 def add_all_flights():
     if request.method == 'POST':
@@ -535,10 +569,10 @@ def add_all_flights():
                             DepTime, ArrTime, Duration, DepTime, ArrTime, 'On time', Aircraft
                             FROM flight
                             WHERE WeekNum = (SELECT MAX(WeekNum) FROM flight);''')
-        print("Add All Flights")
     return redirect(url_for('admin_flight_list', msg_sent=True))
 
 
+# allow staff to edit flight details, while staff can only edit flight status and estimated/arrival time
 @ app.route('/admin/edit_flight/<string:flight_id>', methods=['GET', 'POST'])
 def edit_flight(flight_id):
     if request.method == 'POST':
@@ -547,7 +581,6 @@ def edit_flight(flight_id):
         flight_num = request.form.get('flight_num')
         week_num = request.form.get('week_num')
         deptime = request.form.get('deptime')
-        print(deptime)
         deptime_object = datetime.strptime(deptime, '%H:%M:%S')
         arrtime = request.form.get('arrtime')
         arrtime_object = datetime.strptime(arrtime, '%H:%M:%S')
@@ -568,6 +601,7 @@ def edit_flight(flight_id):
         return redirect(url_for('admin_flight_list', msg_sent=True))
 
 
+# function to allow admin to logout
 @ app.route('/admin_logout')
 def admin_logout():
     session.pop('logged_in', None)
@@ -577,6 +611,7 @@ def admin_logout():
     return redirect(url_for('admin_login_form'))
 
 
+# fuction to run the app automatically after each change saved, and debug function is on
 if __name__ == "__main__":
     app.secret_key = "secret"
     app.run(debug=True)
