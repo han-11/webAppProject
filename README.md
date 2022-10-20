@@ -1,4 +1,4 @@
-This project is an airline management system, required by the assessment of MOCOMP636, It manages customer bookings, flights, routes, airports and aircraft.
+This project is an airline management system, required by the assessment of Mocomp636, It manages customer bookings, flights, routes, airports and aircraft.
 
  Using Python and HTML language, this website consists of two main parts: a public area for customers to look up flight details and book flights, and an administration area for staff to add and edit flight details, bookings and passenger information.
 
@@ -13,25 +13,34 @@ Customer Portal contains:
   info_page.html is heavy coded, there are three fuctions on this page. The function booking_info returns customers passenger deatails and booking information from sql query.
   
   
-3. There is an admin page which allows staff log in to manage passenger's and flight's schedule. This is page can only get access by "GET" method.
-   Once logged in, staff's level will be shown on the left corner,
+3. The admin page allows staff log in to manage passenger's and flight's schedule. This is page can only get access by "GET" method.
+   Once logged in, staff's level will be shown on the left corner. 
 
-4. Two protals including passenger management and flight management will shown once staff logged in.
+4. Once the staff logged in, there will be two portals diaplayed on admin/home page, the two portals are passenger portal and flights portal.
+
+5. The passenger portal displays all the customers information of the airline company, there is a search bar above of the passenger list, admin can search passengers by their last name. Admin can also add new passenger into system.
 
 
 
 Assumption:
 
 1. Assuming admin and user can use the same path to manage customer's profile, such as update customer profile, cancel flight, or make new booking for customer. However, it turns out that I used the session['passenger_id'] to pass the passenger_id value during customer session, which makes it's difficult to share same function and route between customer and admin. 
-I decided to use "GET" path during both sessions instead of "POST" , so that both admin and user can update and cancel flight use same html and route. However, since book flight can only reachable during customer session.
 
 
 2. For the function that allows admin to filter flight list in admin portal, assumption is that I can combine both date range and departure airport query as one query, however I have some issue with using where and condition in mysql query, so I have to seperate the two filter funtion as flight_search and flight_date_search seperately.
 
 
-3. There is a duplicate function.  but the function to cancel and update customer info are shared bwtween customer session and admin session.
+3.After clicked flight id in flights list by admin, assumption was to set a new webpage for the information of each flight. But I managed to integreted  flights list and flight info in one html file, by implementing the {% if flight_info %} method. 
+
+4. By using the POST method, passing passenger id and flight id in route, I managed to using the route to edit passenger's information , check passenger's details, and making flights for the passenger.
+
+5. Instead of create html files for the function of adding passenger, editing passenger's details, adding flights, and editing flight's information, I managed to integrate a bootstrap modal plugin to the webpage for flask form submission. 
 
 
-4. After clicked flight id in flights list by admin, assumption was to set a new webpage for the information of each flight. But I managed to integreted  flights list and flight info in one html file, by implementing the {% if flight_info %} method.
+Integrated error while adding duplicated flights
+
+
+
+
 
 
