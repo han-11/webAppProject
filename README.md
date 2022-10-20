@@ -32,7 +32,7 @@ Assumption:
 
 3.After clicked flight id in flights list by admin, assumption was to set a new webpage for the information of each flight. But I managed to integreted  flights list and flight info in one html file, by implementing the {% if flight_info %} method. 
 
-4. By using the POST method, passing passenger id and flight id in route, I managed to using the route to edit passenger's information , check passenger's details, and making flights for the passenger.
+4. By using the GET method, passing passenger id and flight id in route, I managed to using the route to edit passenger's information , check passenger's details, and making flights for the passenger.
 
 5. Instead of create html files for the function of adding passenger, editing passenger's details, adding flights, and editing flight's information, I managed to integrate a bootstrap modal plugin to the webpage for flask form submission. 
 
