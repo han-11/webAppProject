@@ -24,9 +24,6 @@ Customer Portal contains:
 
 7.
 
-
-
-
  
 8.Admin can check the passengers list, seating capacity, and other details of each flight by clicking the flight id.
  
@@ -53,7 +50,6 @@ Assumption:
 5. Instead of create html files for the function of adding passenger, editing passenger's details, adding flights, and editing flight's information, I managed to integrate a bootstrap modal plugin to the webpage for flask form submission. 
 
 
-Integrated error while adding duplicated flights
 
 
 
