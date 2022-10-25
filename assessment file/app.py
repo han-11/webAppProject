@@ -1,3 +1,6 @@
+#     Name: Hanbing Wang Heather
+#      Student ID: 1153195
+
 from crypt import methods
 from os import curdir
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -126,35 +129,42 @@ def arrival_departure():
 
 @ app.route('/booking', methods=['GET', 'POST'])
 def booking_info():
-    try:
-        if session['logged_in'] == True:
-            passenger_id = session['passenger_id']
-            cur = getCursor()
-            cur.execute('''SELECT * from passenger
-                                    WHERE PassengerID = %s;''', (passenger_id,))
-            passenger_info = cur.fetchall()
-            col_names = [item[0] for item in cur.description]
-# if customer has made booking, show the booking list
-            cur = getCursor()
-            cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName, f.FlightID,
-                                    f.FlightNum, f.FlightDate, f.DepTime, f.ArrTime
-                                    from passenger as p
-                                    JOIN  passengerFlight as pf on pf.PassengerID=p.PassengerID
-                                    JOIN flight as f on f.FlightID = pf.FlightID
-                                    WHERE p.PassengerID = %s
-                                    ORDER BY f.FlightDate;''', (passenger_id, ))
-            booking_details = cur.fetchall()
-            column_names = [item[0] for item in cur.description]
 
-            cur = getCursor()
-            cur.execute(
-                "SELECT DISTINCT  AirportCode, AirportName FROM airport JOIN route on route.DepCode = airport.AirportCode;")
-            airports = cur.fetchall()
-            date_object = datetime.strptime(CURRENTTIME, '%Y-%m-%d').date()
-            return render_template('customer_info_page.html', passenger_id=session['passenger_id'], passenger_info=passenger_info, col_names=col_names,
-                                   column_names=column_names, booking_details=booking_details, airports=airports, currentTime=date_object)
-    except:
-        return "<h1> Please Sign In or Register to Make Booking.</h1>"
+    if session['logged_in'] == True:
+        passenger_id = session['passenger_id']
+        cur = getCursor()
+        cur.execute('''SELECT * from passenger
+                                WHERE PassengerID = %s;''', (passenger_id,))
+        passenger_info = cur.fetchall()
+        col_names = [item[0] for item in cur.description]
+# if customer has made booking, show the booking list
+        cur = getCursor()
+        cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName,f.FlightID, f.FlightNum, f.FlightDate, airportname.Departures, 
+                    airportname.Arrivals, f.DepTime, f.ArrTime
+                    from passenger as p
+                    JOIN  passengerFlight as pf on pf.PassengerID=p.PassengerID
+                    JOIN flight as f on f.FlightID = pf.FlightID
+                    JOIN route as r on r.FlightNum = f.FLightNum
+                    JOIN 
+                    (SELECT 
+                    j.FlightNum, j.Departures, a.AirportName AS Arrivals 
+                    from
+                    ( SELECT r.FlightNum, a.AirportName AS Departures, r.ArrCode
+                    FROM route as r
+                    JOIN airport as a ON r.DepCode = a.AirportCode ) as j
+                    JOIN airport as a on j.ArrCode = a.AirportCode ) as airportname
+                    on airportname.FlightNum = f.FlightNum
+                    WHERE p.PassengerID = %s
+                    ORDER BY f.FlightDate;''', (passenger_id, ))
+        booking_details = cur.fetchall()
+        column_names = [item[0] for item in cur.description]
+        cur = getCursor()
+        cur.execute(
+            "SELECT DISTINCT  AirportCode, AirportName FROM airport JOIN route on route.DepCode = airport.AirportCode;")
+        airports = cur.fetchall()
+        date_object = datetime.strptime(CURRENTTIME, '%Y-%m-%d').date()
+        return render_template('customer_info_page.html', passenger_id=session['passenger_id'], passenger_info=passenger_info, col_names=col_names,
+                               column_names=column_names, booking_details=booking_details, airports=airports, currentTime=date_object)
 
 
 # function to allow customer to edit their personal details
@@ -224,14 +234,18 @@ def flight_list(passenger_id):
 # let the user to confirm the flight information to book
 @ app.route('/booking/confirm/<string:passenger_id>/<string:flight_id>', methods=['GET', 'POST'])
 def book_flight(passenger_id, flight_id):
+    # send message to the user to confirm the flight booked successfully
     try:
         cur = getCursor()
         cur.execute('''INSERT INTO passengerFlight VALUES (%s, %s);''',
                     (flight_id, passenger_id, ))
-    except IntegrityError:
-        flash("You have already booked this flight!")
-    flash("Successfully Booked!")
-    return render_template('customer_info_page.html', msg_sent=True)
+        flash(f"Successfully Booked {flight_id}!")
+        return render_template('customer_info_page.html', msg_sent=True, passenger_id=passenger_id)
+        # send a message if customer has already booked the flight
+    except mysql.connector.errors.IntegrityError:
+        flash(
+            f"You have already booked Flight {flight_id}! Please choose another flight.")
+        return render_template('customer_info_page.html', msg_sent=True)
 
 
 # function to allow customer to logout and terminate the session
@@ -333,13 +347,23 @@ def passenger_profile(passenger_id):
         col_names = [item[0] for item in cur.description]
 
         cur = getCursor()
-        cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName, f.FlightID,
-                                    f.FlightNum, f.FlightDate, f.DepTime, f.ArrTime
-                                    from passenger as p
-                                    JOIN  passengerFlight as pf on pf.PassengerID=p.PassengerID
-                                    JOIN flight as f on f.FlightID = pf.FlightID
-                                    WHERE p.PassengerID = %s
-                                    ORDER BY f.FlightDate;''', (passenger_id, ))
+        cur.execute(''' SELECT p.PassengerID, p.FirstName, p.LastName,f.FlightID, f.FlightNum, f.FlightDate, airportname.Departures, 
+                        airportname.Arrivals,  f.DepTime, f.ArrTime
+                        from passenger as p
+                        JOIN  passengerFlight as pf on pf.PassengerID=p.PassengerID
+                        JOIN flight as f on f.FlightID = pf.FlightID
+                        JOIN route as r on r.FlightNum = f.FLightNum
+                        JOIN 
+                        (SELECT 
+                        j.FlightNum, j.Departures, a.AirportName AS Arrivals 
+                        from
+                        ( SELECT r.FlightNum, a.AirportName AS Departures, r.ArrCode
+                        FROM route as r
+                        JOIN airport as a ON r.DepCode = a.AirportCode ) as j
+                        JOIN airport as a on j.ArrCode = a.AirportCode ) as airportname
+                        on airportname.FlightNum = f.FlightNum
+                        WHERE p.PassengerID = %s
+                        ORDER BY f.FlightDate;''', (passenger_id, ))
         booking_details = cur.fetchall()
         column_names = [item[0] for item in cur.description]
 
@@ -400,6 +424,7 @@ def admin_flight_list():
                 WHERE FlightDate BETWEEN %s
                 AND DATE_ADD(%s, INTERVAL 7 DAY)
                 ORDER BY FlightDate, DepTime, DepartureAirport; ''', (CURRENTTIME, CURRENTTIME))
+#  By default, the flight list shows flights to and from all airports up to 7 days from current time.
     column_names = [item[0] for item in cur.description]
     numrows = int(cur.rowcount)
     all_flights = cur.fetchall()
@@ -407,13 +432,16 @@ def admin_flight_list():
     date_from = min(flight_dates)
     date_to = max(flight_dates)
 
-    cur.execute('''SELECT AirportName FROM airport;''')
+    cur.execute('''SELECT DISTINCT (AirportName) FROM airport
+                    JOIN route as r on r.DepCode = airport.AirportCode;''')
     all_airports = cur.fetchall()
     airport_names = [airport[0] for airport in all_airports]
+    print(airport_names)
 
     cur.execute('''SELECT DISTINCT(FlightStatus) FROM airline.flight;''')
     all_flight_status = cur.fetchall()
     all_status = sorted([item[0] for item in all_flight_status])
+    print(all_status)
 
     cur.execute('''SELECT DISTINCT(Aircraft) FROM airline.flight;''')
     all_regmarks = cur.fetchall()
@@ -551,25 +579,38 @@ def add_flight():
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''',
                     (flight_num, week_num, flight_date, deptime_object,
                         arrtime_object, duration, deptime_object, arrtime_object, 'On time', aircraft))
-        cur.execute('''SET FOREIGN_KEY_CHECKS = 0;''')
-        flash('Flight added')
-    return redirect(url_for('admin_flight_list', msg_sent=True))
+        cur.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
+        flash("New Flight Added")
+    return redirect(url_for('display_all_flights'))
 
 
 #  allow manager to copy all flights which copied from latest week
 @ app.route('/admin/add_all_flights', methods=['GET', 'POST'])
 def add_all_flights():
     if request.method == 'POST':
-        if request.form.get('all_flights') == "":
-            cur = getCursor()
-            cur.execute('''INSERT INTO flight
-                            (FlightNum, WeekNum, FlightDate, DepTime, ArrTime, Duration,
-                            DepEstAct, ArrEstAct, FlightStatus, Aircraft)
-                            SELECT FlightNum, WeekNum+1, date_add(FlightDate, interval 7 day),
-                            DepTime, ArrTime, Duration, DepTime, ArrTime, 'On time', Aircraft
-                            FROM flight
-                            WHERE WeekNum = (SELECT MAX(WeekNum) FROM flight);''')
-    return redirect(url_for('admin_flight_list', msg_sent=True))
+        cur = getCursor()
+        cur.execute('''SET FOREIGN_KEY_CHECKS = 0;''')
+        cur.execute('''INSERT INTO flight
+                        (FlightNum, WeekNum, FlightDate, DepTime, ArrTime, Duration,
+                        DepEstAct, ArrEstAct, FlightStatus, Aircraft)
+                        SELECT FlightNum, WeekNum+1, date_add(FlightDate, interval 7 day),
+                        DepTime, ArrTime, Duration, DepTime, ArrTime, 'On time', Aircraft
+                        FROM flight
+                        WHERE WeekNum = (SELECT MAX(WeekNum) FROM flight);''')
+        cur.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
+        flash("Successfully added all flights from last week")
+        return redirect(url_for('display_all_flights'))
+    return redirect(url_for('admin_flight_list'))
+
+
+# display all existing flights after the manager added flights
+@ app.route('/admin/all_flights', methods=['GET', 'POST'])
+def display_all_flights():
+    cur = getCursor()
+    cur.execute('''Select * from flight ORDER BY FlightDate; ''')
+    flights = cur.fetchall()
+    column_names = [item[0] for item in cur.description]
+    return render_template('all_flights.html', column_names=column_names, flights=flights, )
 
 
 # allow staff to edit flight details, while staff can only edit flight status and estimated/arrival time

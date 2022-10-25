@@ -4,28 +4,6 @@
 
 
 {% block content %}
-
-<!-- Display Looged in staff information and manager level -->
-<div class="info_table user-info">
-  <div class="user_info">
-    <h4>Welcome!</h4>
-    {% if session['staff_id']%}
-      <p>Staff ID: {{session['staff_id']}}
-        <p> Staff Name : {{ session['staff_name'] }}</p>
-        {% if  session['is_manager'] == 1 %}
-          <p> Staff Type : Manager</p>
-        {% else %}
-          <p> Staff Type : Staff</p>
-        {% endif %}
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a> </p>
-    {% else %}
-     <p> Not login yet</p>
-    {% endif %}
-  </div>
-</div>
-
-<br>
-
 <!-- flask message after command executed -->
 
 {% if msg_sent: %}
@@ -49,6 +27,29 @@
 
 
 {% else: %}
+
+<!-- Display Looged in staff information and manager level -->
+<div class="info_table user-info">
+  <div class="user_info">
+    <h4>Welcome!</h4>
+    {% if session['staff_id']%}
+      <p>Staff ID: {{session['staff_id']}}
+        <p> Staff Name : {{ session['staff_name'] }}</p>
+        {% if  session['is_manager'] == 1 %}
+          <p> Staff Type : Manager</p>
+        {% else %}
+          <p> Staff Type : Staff</p>
+        {% endif %}
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a> </p>
+    {% else %}
+     <p> Not login yet</p>
+    {% endif %}
+  </div>
+</div>
+
+<br>
+
+
 
 
 <!-- Display information of each flight -->
@@ -155,7 +156,7 @@
         
                 <div class="modal-footer">
                   <form action="{{url_for('add_all_flights')}}" method="POST">
-                    <input type="hidden" name="all_flights" value="" >
+                    <input type="hidden" name="all_flights" value="add_all" >
                     <input type="submit" class="btn btn-success modal-btn" style="margin-bottom: 13px;" value="Add All">
                   </form>
                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

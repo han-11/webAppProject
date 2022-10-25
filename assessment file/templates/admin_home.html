@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Passengers Dashboard{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style>
+      body {
+          background-image: url('../static/img/blue_sky.jpg');
+      }
+  </style>
+{% endblock %}
+
+{% block title %}Passengers Portal{% endblock %}
 
 
 {% block content %}

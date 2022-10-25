@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}All Scheduled Flights{% endblock %}
+
+
+{% block content %}
+<!-- flask message after command executed -->
+
+
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages%}
+      {% for message in messages %}
+        <div class="alert alert-success info_table " role="alert">
+          {{ message }}
+          <button class="btn btn-outline-dark" onclick="goBack()">Go Back</button>
+        </div>
+      {% endfor %}
+      
+     {% endif %} 
+  {% endwith %}
+
+
+
+
+<!-- Display Looged in staff information and manager level -->
+<div class="info_table user-info">
+  <div class="user_info">
+    <h4>Welcome!</h4>
+    {% if session['staff_id']%}
+      <p>Staff ID: {{session['staff_id']}}
+        <p> Staff Name : {{ session['staff_name'] }}</p>
+        {% if  session['is_manager'] == 1 %}
+          <p> Staff Type : Manager</p>
+        {% else %}
+          <p> Staff Type : Staff</p>
+        {% endif %}
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a> </p>
+    {% else %}
+     <p> Not login yet</p>
+    {% endif %}
+  </div>
+</div>
+
+
+
+
+<!-- Returns the flight list  -->
+<br>
+
+
+
+<div class="flight_details">
+  <h3 style="text-align:center">Updated Flight List</h3>
+  <table class="table table-hover " id="bookings">
+      
+  
+    <thead>
+      <tr>
+        {% for name in column_names %}
+          <th>{{name}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for flight in flights %}
+      <tr>
+          <td>{{flight.0}}</td>
+          <td>{{flight.1}}</td>
+          <td>{{flight.2}}</td>
+          <td>{{flight.3}}</td>
+          <td>{{flight.4}}</td>
+          <td>{{flight.5}}</td>
+          <td>{{flight.6}}</td>
+          <td>{{flight.7}}</td>
+          <td>{{flight.8}}</td>
+          <td>{{flight.9}}</td>
+          <td>{{flight.10}}</td>
+          <td>{{flight.11}}</td>
+          <td>{{flight.12}}</td>
+          <td>{{flight.13}}</td>
+          <td>{{flight.14}}</td>
+          <td>{{flight.15}}</td>
+
+        
+      </tr> 
+      {% endfor %}
+    </tbody>
+
+
+  </table>
+</div>
+
+
+
+
+<br>
+
+
+
+
+
+{% endblock %}
