@@ -13,25 +13,24 @@ Customer Portal contains:
  customer_info_page.html is heavy coded, there are three fuctions on this page. The function booking_info returns customers passenger deatails and booking information from sql query.
   
   
-3. The admin page allows staff log in to manage passenger's and flight's schedule. This is page can only get access by "GET" method.
+ Admin Portal's functions are :
+ 
+1. The admin page allows staff log in to manage passenger's and flight's schedule. This is page can only get access by "GET" method.
    Once logged in, staff's level will be shown on the left corner. 
 
-4. Once the staff logged in, there will be two portals diaplayed on admin/home page, the two portals are passenger portal and flights portal.
+2. Once the staff logged in, there will be two portals diaplayed on admin/home page, the two portals are passenger portal and flights portal.
 
-5. The passenger portal displays all the customers information of the airline company, there is a search bar above of the passenger list, admin can search passengers by their last name. Admin can also add new passenger into system on this page, by clicking "Add Passenger" button, there will be a flask form to collect new passenger's information and pass it back to app.py.
+3. The passenger portal displays all the customers information of the airline company, there is a search bar above of the passenger list, admin can search passengers by their last name. Admin can also add new passenger into system on this page, by clicking "Add Passenger" button, there will be a flask form to collect new passenger's information and pass it back to app.py.
 
-6. The flight portal displays all the fligts on the admin/flight page, there is a search function which can search flights by choosing departure airport.
+4. The flight portal displays all the fligts on the admin/flight page, there is a search function which can search flights by choosing departure airport.
 
-7.
-
+5. Admin can check the passengers list, seating capacity, and other details of each flight by clicking the flight id.
  
-8.Admin can check the passengers list, seating capacity, and other details of each flight by clicking the flight id.
- 
-9.By clicking each passenger's id, admin will be able to check passenger's information, this function will share the same route with the customer's session. Using "GET" method, the passenger and flight id can be passed by the link, using information in the link, admin can edit passenger's detail, cancel passenger's booking, and make booking for the selected passenger.
+6. By clicking each passenger's id, admin will be able to check passenger's information, this function will share the same route with the customer's session. Using "GET" method, the passenger and flight id can be passed by the link, using information in the link, admin can edit passenger's detail, cancel passenger's booking, and make booking for the selected passenger.
 
-10.  Admin can edit flight information on the flight list, manager can edit all the details of a flight while manager can edit all details of a flight.
+7.  Admin can edit flight information on the flight list, manager can edit all the details of a flight while manager can edit all details of a flight.
 
-11. If the staff level is manager, there will be a button displayed on the page allows manager to add new flights. By clicking the button, manager can either new individual flight or copy all the flights from latest week.
+8. If the staff level is manager, there will be a button displayed on the page allows manager to add new flights. By clicking the button, manager can either new individual flight or copy all the flights from latest week.
 
 
 
