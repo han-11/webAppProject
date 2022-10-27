@@ -18,7 +18,7 @@
       {% endfor %}
         </tr>
       </thead>
-    
+      <button class="btn btn-dark goback-btn" onclick="goBack()">Go Back</button>
       <tbody>
         {% for result in departures %}
         <tr>
@@ -42,6 +42,7 @@
           <td><a type="button" id="myBtn"  class="btn btn-outline-primary" data-bs-toggle="modal" 
             data-bs-target="#myModal{{result[0]}}" href="/booking/confirm/{{result[0]}}" >Book Flight</a></td>
           {% endif %}
+      
           
         </tr>  
 

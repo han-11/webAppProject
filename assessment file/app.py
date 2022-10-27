@@ -6,7 +6,7 @@ from os import curdir
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 import mysql.connector
-from mysqlx import IntegrityError
+from mysqlx import DataError, IntegrityError
 import connect
 
 # Set current time as "2022-10-28"
@@ -39,7 +39,7 @@ def getCursor():
 @app.route('/')
 def home():
     cur = getCursor()
-    cur.execute('''SELECT DISTINCT  AirportCode, AirportName FROM airport
+    cur.execute('''SELECT DISTINCT AirportCode, AirportName FROM airport
                     JOIN route on route.DepCode = airport.AirportCode;''')
     airports = cur.fetchall()
 # query to get all airports from database
@@ -48,7 +48,7 @@ def home():
 # use customer id to check if the customer is in the database, if not, return register page
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def log_in():
     if request.method == 'POST':
         email = request.form.get('userid')
@@ -66,10 +66,12 @@ def log_in():
             return redirect(url_for('booking_info', passenger_id=session['passenger_id']))
 # direct user to register page if the customer is not in the database
         else:
-            flash('You are not a registered user, please register first')
-            return redirect(url_for('register'))
 
-    return render_template('home.html')
+            return redirect(url_for('register'))
+    else:
+        flash('Please enter your email address')
+        return redirect(url_for('home'))
+
 
 #  register page, allow user to register as a new customer
 
@@ -77,18 +79,22 @@ def log_in():
 @ app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == "POST":
-        data = request.form
-        firstname = data.get("firstname")
-        lastname = data.get("lastname")
-        email = data.get("email")
-        phone = data.get("phone")
-        passport = data.get("passport")
-        dob = data.get("dob")
-        cur = getCursor()
-        cur.execute('''INSERT INTO passenger(FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth)
-                        VALUES (%s,%s,%s,%s,%s,%s);''', (firstname, lastname, email, phone, passport, dob))
-# if user submit the form, return message says registration is successful and direct user to login page
-        return render_template('register.html', msg_sent=True)
+        try:
+            data = request.form
+            firstname = data.get("firstname")
+            lastname = data.get("lastname")
+            email = data.get("email")
+            phone = data.get("phone")
+            passport = data.get("passport")
+            dob = data.get("dob")
+            cur = getCursor()
+            cur.execute('''INSERT INTO passenger(FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth)
+                            VALUES (%s,%s,%s,%s,%s,%s);''', (firstname, lastname, email, phone, passport, dob))
+    # if user submit the form, return message says registration is successful and direct user to login page
+            return render_template('register.html', msg_sent=True)
+        except mysql.connector.errors.DataError:
+            flash('There are some errors in your input, please check again')
+            return redirect(url_for('register'))
 
     return render_template('register.html', msg_sent=False)
 
@@ -101,9 +107,9 @@ def arrival_departure():
     cur = getCursor()
     cur.execute('''SELECT f.FlightID, r.FlightNum, r.DepCode,  a.AirportName,
                     f.FlightDate, f.DepTime, f.DepEstAct, f.FlightStatus
-                    FROM airline.airport as a
-                    JOIN airline.route as r on r.DepCode = a.AirportCode
-                    JOIN airline.flight as f on f.FlightNum = r.FlightNum
+                    FROM airport as a
+                    JOIN route as r on r.DepCode = a.AirportCode
+                    JOIN flight as f on f.FlightNum = r.FlightNum
                     where r.ArrCode = %s
                     AND f.FlightDate BETWEEN DATE_SUB(%s, INTERVAL 2 DAY)
                     AND DATE_ADD(%s, INTERVAL 5 DAY) ;''', (airport_code, CURRENTTIME, CURRENTTIME))
@@ -219,7 +225,7 @@ def flight_list(passenger_id):
                 JOIN status as s on  s.FlightStatus = f.FlightStatus
                 JOIN
                 (SELECT FlightID, COUNT(PassengerID) AS BookedSeats
-                FROM airline.passengerFlight
+                FROM passengerFlight
                 GROUP BY FlightID) AS sf on sf.FlightID = f.FlightID
                 where a.AirportName = %s
                 AND f.FlightDate BETWEEN %s
@@ -239,7 +245,7 @@ def book_flight(passenger_id, flight_id):
         cur = getCursor()
         cur.execute('''INSERT INTO passengerFlight VALUES (%s, %s);''',
                     (flight_id, passenger_id, ))
-        flash(f"Successfully Booked {flight_id}!")
+        flash(f"Successfully Booked Flight {flight_id}!")
         return render_template('customer_info_page.html', msg_sent=True, passenger_id=passenger_id)
         # send a message if customer has already booked the flight
     except mysql.connector.errors.IntegrityError:
@@ -384,7 +390,9 @@ def search():
         # search by last name
         cur = getCursor()
         cur.execute(
-            '''SELECT * FROM passenger WHERE LastName = %s ORDER BY  FirstName;''', (last_name,))
+            '''SELECT * FROM passenger WHERE LastName LIKE %s
+                ORDER BY LastName, FirstName;''', ("%" + last_name + "%", ))
+        print(cur.statement)
         passengers = cur.fetchall()
         column_names = [item[0] for item in cur.description]
 
@@ -402,12 +410,12 @@ def search():
 @ app.route('/admin/flight_list', methods=['GET', 'POST'])
 def admin_flight_list():
     cur = getCursor()
-    cur.execute(''' Select DISTINCT(aa.FlightID), aa.FlightNum, aa.WeekNum, aa.FlightDate, aa.DepTime AS DepartureTime, aa.ArrTime AS ArrivalTime, aa.DepEstACT AS EstimatedDeparture, aa.ArrEstAct AS EstimatedArival, da.DepartureAirport,
+    cur.execute(''' Select DISTINCT(aa.FlightID), aa.FlightNum, aa.WeekNum, aa.FlightDate, aa.DepTime AS DepartureTime, aa.ArrTime AS ArrivalTime, aa.DepEstAct AS EstimatedDeparture, aa.ArrEstAct AS EstimatedArival, da.DepartureAirport,
                 aa.ArrivalAirport, aa.MasterRoute, aa.RegMark,seating.BookedSeats, aa.seating-seating.BookedSeats as SeatsRemain, aa.Seating, aa.FlightStatus
                 FROM
                 (SELECT f.FlightID, f.FlightNum, f.WeekNum, r.DepCode, r.ArrCode, a.AirportName as ArrivalAirport, r.MasterRoute,
                 f.FlightDate, f.DepTime, f.ArrTime,f.DepEstACT, f.ArrEstAct, f.FlightStatus, f.Aircraft, ac.RegMark, ac.Seating
-                FROM airline.flight AS f
+                FROM flight AS f
                 JOIN route as r on r.FlightNum = f.FlightNum
                 JOIN aircraft as ac on ac.RegMark = f.Aircraft
                 JOIN airport as a on a.AirportCode = r.ArrCode )
@@ -419,7 +427,7 @@ def admin_flight_list():
                 ) AS da on aa.FlightNum = da.FlightNum
                 JOIN
                 (SELECT FlightID, COUNT(PassengerID) AS BookedSeats
-                FROM airline.passengerFlight
+                FROM passengerFlight
                 GROUP BY FlightID) as seating on aa.FlightID = seating.FlightID
                 WHERE FlightDate BETWEEN %s
                 AND DATE_ADD(%s, INTERVAL 7 DAY)
@@ -436,18 +444,16 @@ def admin_flight_list():
                     JOIN route as r on r.DepCode = airport.AirportCode;''')
     all_airports = cur.fetchall()
     airport_names = [airport[0] for airport in all_airports]
-    print(airport_names)
 
-    cur.execute('''SELECT DISTINCT(FlightStatus) FROM airline.flight;''')
+    cur.execute('''SELECT DISTINCT(FlightStatus) FROM flight;''')
     all_flight_status = cur.fetchall()
     all_status = sorted([item[0] for item in all_flight_status])
-    print(all_status)
 
-    cur.execute('''SELECT DISTINCT(Aircraft) FROM airline.flight;''')
+    cur.execute('''SELECT DISTINCT(Aircraft) FROM flight;''')
     all_regmarks = cur.fetchall()
     regmarks = sorted([reg[0] for reg in all_regmarks])
     return render_template('admin_flights.html',  column_names=column_names, all_flights=all_flights,
-                           numrows=numrows, airport_names=airport_names, all_status=all_status, regmarks=regmarks,
+                           airport_names=airport_names, all_status=all_status, regmarks=regmarks,
                            date_from=date_from, date_to=date_to)
 
 
@@ -461,12 +467,14 @@ def flight_search():
         else:
             cur = getCursor()
             cur.execute(''' SELECT * FROM
-                (Select DISTINCT(aa.FlightID), aa.FlightNum, aa.WeekNum, aa.FlightDate, aa.DepTime, aa.ArrTime, da.DepartureAirport,
-                aa.ArrivalAirport, aa.MasterRoute, aa.RegMark, aa.Seating, seating.BookedSeats, aa.seating-seating.BookedSeats as SeatsRemain
+                (Select DISTINCT(aa.FlightID), aa.FlightNum, aa.WeekNum, aa.FlightDate,aa.DepTime AS DepartureTime, aa.ArrTime AS ArrivalTime, 
+                aa.DepEstAct AS EstimatedDeparture, aa.ArrEstAct AS EstimatedArival,  da.DepartureAirport,
+                aa.ArrivalAirport, aa.MasterRoute, aa.RegMark, seating.BookedSeats, aa.seating-seating.BookedSeats as SeatsRemain,
+                aa.Seating, aa.FlightStatus
                 FROM
                 (SELECT f.FlightID, f.FlightNum, f.WeekNum, r.DepCode, r.ArrCode, a.AirportName as ArrivalAirport, r.MasterRoute,
-                f.FlightDate, f.DepTime, f.ArrTime, f.FlightStatus, f.Aircraft, ac.RegMark, ac.Seating
-                FROM airline.flight AS f
+                f.FlightDate, f.DepTime, f.ArrTime, f.DepEstACT, f.ArrEstAct, f.FlightStatus, f.Aircraft, ac.RegMark, ac.Seating
+                FROM flight AS f
                 JOIN route as r on r.FlightNum = f.FlightNum
                 JOIN aircraft as ac on ac.RegMark = f.Aircraft
                 JOIN airport as a on a.AirportCode = r.ArrCode )
@@ -478,7 +486,7 @@ def flight_search():
                 ) AS da on aa.FlightNum = da.FlightNum
                 JOIN
                 (SELECT FlightID, COUNT(PassengerID) AS BookedSeats
-                FROM airline.passengerFlight
+                FROM passengerFlight
                 GROUP BY FlightID) as seating on aa.FlightID = seating.FlightID
                 WHERE FlightDate BETWEEN %s
                 AND DATE_ADD(%s, INTERVAL 7 DAY)
@@ -488,9 +496,24 @@ def flight_search():
 
             searched_flights = cur.fetchall()
             column_names = [item[0] for item in cur.description]
-            numrows = int(cur.rowcount)
 
-            return render_template('admin_flights.html',  column_names=column_names, all_flights=searched_flights, numrows=numrows)
+            cur.execute('''SELECT DISTINCT (AirportName) FROM airport
+                    JOIN route as r on r.DepCode = airport.AirportCode;''')
+            all_airports = cur.fetchall()
+            airport_names = [airport[0] for airport in all_airports]
+            print(airport_names)
+
+            cur.execute('''SELECT DISTINCT(FlightStatus) FROM flight;''')
+            all_flight_status = cur.fetchall()
+            all_status = sorted([item[0] for item in all_flight_status])
+            print(all_status)
+
+            cur.execute('''SELECT DISTINCT(Aircraft) FROM flight;''')
+            all_regmarks = cur.fetchall()
+            regmarks = sorted([reg[0] for reg in all_regmarks])
+
+            return render_template('admin_flights.html',  column_names=column_names, all_flights=searched_flights,
+                                   airport_names=airport_names, all_status=all_status, regmarks=regmarks,)
 
 
 # filter function to search flight by flight date
@@ -506,12 +529,14 @@ def flight_date_search():
             to_date = request.form.get('to_date')
             cur = getCursor()
             cur.execute(''' SELECT * FROM
-                (Select DISTINCT(aa.FlightID), aa.FlightNum, aa.WeekNum, aa.FlightDate, aa.DepTime, aa.ArrTime, da.DepartureAirport,
-                aa.ArrivalAirport, aa.MasterRoute, aa.RegMark, aa.Seating, seating.BookedSeats, aa.seating-seating.BookedSeats as SeatsRemain
+                (Select DISTINCT(aa.FlightID), aa.FlightNum, aa.WeekNum, aa.FlightDate,aa.DepTime AS DepartureTime, aa.ArrTime AS ArrivalTime, 
+                aa.DepEstAct AS EstimatedDeparture, aa.ArrEstAct AS EstimatedArival,  da.DepartureAirport,
+                aa.ArrivalAirport, aa.MasterRoute, aa.RegMark, seating.BookedSeats, aa.seating-seating.BookedSeats as SeatsRemain,
+                aa.Seating, aa.FlightStatus
                 FROM
                 (SELECT f.FlightID, f.FlightNum, f.WeekNum, r.DepCode, r.ArrCode, a.AirportName as ArrivalAirport, r.MasterRoute,
-                f.FlightDate, f.DepTime, f.ArrTime, f.FlightStatus, f.Aircraft, ac.RegMark, ac.Seating
-                FROM airline.flight AS f
+                f.FlightDate, f.DepTime, f.ArrTime, f.DepEstACT, f.ArrEstAct, f.FlightStatus, f.Aircraft, ac.RegMark, ac.Seating
+                FROM flight AS f
                 JOIN route as r on r.FlightNum = f.FlightNum
                 JOIN aircraft as ac on ac.RegMark = f.Aircraft
                 JOIN airport as a on a.AirportCode = r.ArrCode )
@@ -523,7 +548,7 @@ def flight_date_search():
                 ) AS da on aa.FlightNum = da.FlightNum
                 JOIN
                 (SELECT FlightID, COUNT(PassengerID) AS BookedSeats
-                FROM airline.passengerFlight
+                FROM passengerFlight
                 GROUP BY FlightID) as seating on aa.FlightID = seating.FlightID
                 WHERE FlightDate BETWEEN %s
                 AND DATE_ADD(%s, INTERVAL 7 DAY)
@@ -533,8 +558,8 @@ def flight_date_search():
 
             searched_flights = cur.fetchall()
             column_names = [item[0] for item in cur.description]
-            numrows = int(cur.rowcount)
-    return render_template('admin_flights.html',  column_names=column_names, all_flights=searched_flights, numrows=numrows)
+
+    return render_template('admin_flights.html',  column_names=column_names, all_flights=searched_flights, )
 
 
 # show all passengers for selected flight, the list is numbered in order
@@ -607,8 +632,10 @@ def add_all_flights():
 @ app.route('/admin/all_flights', methods=['GET', 'POST'])
 def display_all_flights():
     cur = getCursor()
-    cur.execute('''Select * from flight ORDER BY FlightDate; ''')
+    cur.execute(
+        '''Select * from flight ORDER BY WeekNum DESC, FlightDate ASC ; ''')
     flights = cur.fetchall()
+    print(flights)
     column_names = [item[0] for item in cur.description]
     return render_template('all_flights.html', column_names=column_names, flights=flights, )
 
@@ -631,6 +658,7 @@ def edit_flight(flight_id):
         arrest = request.form.get('estarr')
         arrest_object = datetime.strptime(arrest, '%H:%M:%S')
         status = request.form.get('status')
+        print(status)
         cur = getCursor()
         cur.execute('''UPDATE flight
                     SET FlightNum = %s, WeekNum = %s, FlightDate = %s, DepTime = %s, ArrTime = %s, Duration = %s,

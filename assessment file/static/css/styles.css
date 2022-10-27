@@ -30,6 +30,13 @@ footer {
 }
 
 
+.btn-add-flight{
+  display: inline-block;
+  position: absolute;
+  left: 1%;
+  top: 33%;
+}
+
 .flight_details { 
   margin: 9% 1% 1% 1%;; 
 }
@@ -41,8 +48,8 @@ footer {
 .first_filter {
   display: inline-block;
   position:absolute;
-  margin-left: 18%;
-  margin-top:-2%;
+  margin-left: 9%;
+  margin-top:4%;
 }
 
 
@@ -56,6 +63,13 @@ footer {
 
 .form-control-inline {
   display: inline;
+  
+}
+
+.goback-btn {
+  position: absolute;
+  margin-top: -2%;
+  margin-left: 93%;
   
 }
 
@@ -103,7 +117,7 @@ footer {
 .second_filter {
   display: inline-block;
   width: 22%;
-  margin-left: 35%;
+  margin-left: 63%;
   margin-top: 3%;
 }
 
@@ -114,3 +128,7 @@ footer {
   margin-top: -1.5%;
 }
 
+.staff-info {
+  margin-top: 1%;
+  margin-left: 1%;
+}

@@ -13,6 +13,17 @@
 
 
 
+  {% with messages = get_flashed_messages() %}
+    {% if messages%}
+      {% for message in messages %}
+        <div class="alert alert-success info_table " role="alert">
+          {{ message }}
+          <button class="btn btn-outline-dark" onclick="goBack()">Go Back</button>
+        </div>
+      {% endfor %}
+     {% endif %} 
+  {% endwith %}
+
 {% block content %}
 
 
@@ -38,10 +49,8 @@
   <div class="jumbotron customer_homepage">
     <h4 class="display-4">Log in to make booking</h4> 
     <form action="{{ url_for ('log_in')}}" method="post" >
-     <label>Name</label>
-     <input type="text" placeholder="Name" name="customername">
      <label>UserID</label>
-     <input type="text" placeholder="Email Address" name="userid">
+     <input type="text" placeholder="Email Address" name="userid" data-validation-required-message="Please enter your email address." required="required">
      <button type="submit" class= "btn btn-dark" >Login</button>
     </form>
   </div>

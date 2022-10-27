@@ -69,10 +69,10 @@
           <label for="airport">Choose The Departure Airport:</label> 
             <option value=""  >--Please choose an airport--</option>
             {% for airport in airports %}
-            <option value="{{airport[1]}}">{{ airport[1] }}</option>
+            <option value="{{airport[1]}}" >{{ airport[1] }}</option>
             {% endfor %}   
         </select>
-        <input name="flight_date" type="date" id="flight_date_id">  
+        <input name="flight_date" type="date" id="flight_date_id"  required>  
       <button type="submit" class="btn btn-primary">Submit</button> 
     </form>
 </div>

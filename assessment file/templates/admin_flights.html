@@ -92,8 +92,8 @@
 <br>
 
         {% if  session['is_manager'] == 1 %}
-        <div class="add_flight container" style="display:inline; position:absolute; left:90%; top:15%;">
-          <a  type="button" class="btn btn-success form-control-inline" id="myBtn" data-bs-toggle="modal" data-bs-target="#myModal" >
+        <div class="add_flight container" >
+          <a  type="button" class="btn btn-success form-control-inline btn-add-flight" id="myBtn" data-bs-toggle="modal" data-bs-target="#myModal" >
                           Add Flight </a>
         </div>
         
@@ -175,7 +175,15 @@
 
 
 
-<br>
+
+
+
+
+<div class="flight_info info_table ">
+  <h1 style="text-align:center">Flight List</h1>
+  
+
+  <br>
 
 <!-- Filter function for date range and departure airport -->
 
@@ -202,13 +210,9 @@
     </div>
   </div>
 
-<!-- Returns the flight list  -->
+<!-- Return the flight list  -->
 <br>
-
-
-
-<div class="flight_info info_table ">
-  <h3 style="text-align:center">Flight List</h3>
+<button class="btn btn-dark goback-btn" onclick="goBack()">Go Back</button>
   <table class="table table-hover" id="bookings">
       
   
