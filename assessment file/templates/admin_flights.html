@@ -58,7 +58,7 @@
 
     <div class="flight_passenger flight_details">
       <h5> Flight ID: {{flight_id}}</h5>
-      <h3 style="text-align:center">Flight Details</h3>
+      <h3 style="text-align:center">Passenger List for Flight {{flight_id}}</h3>
       <table class="table table-hover" id="bookings">
         <thead>
           <tr>
@@ -157,7 +157,7 @@
                 <div class="modal-footer">
                   <form action="{{url_for('add_all_flights')}}" method="POST">
                     <input type="hidden" name="all_flights" value="add_all" >
-                    <input type="submit" class="btn btn-success modal-btn" style="margin-bottom: 13px;" value="Add All">
+                    <input type="submit" class="btn btn-success modal-btn" style="margin-bottom: 13px;" value="Duplicate Flights From Latest Week ">
                   </form>
                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               </div>

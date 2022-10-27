@@ -14,20 +14,18 @@ footer {
   text-align: center;
 }
 
-
-.add_btn {
-  display: inline-block;
-  position: absolute;
-  right: 10%;
-  top: 10%;
-}
-
-
 .airport_to_book {
   text-align: center;
   font-size: 1.5em;
   
 }
+
+
+.btn-add-passenger {
+  position: relative;
+  margin-left: -46%;
+}
+
 
 
 .btn-add-flight{
@@ -68,7 +66,7 @@ footer {
 
 .goback-btn {
   position: absolute;
-  margin-top: -2%;
+  margin-top: -3%;
   margin-left: 93%;
   
 }
@@ -91,12 +89,16 @@ footer {
   float: right;
 }
 
+.passenger_info {
+  margin-top: -3%;
+}
 
-.passenger_search_bar {
+.passenger_search {
   display: inline-block;
   position: absolute;
-  top: 18%;
-  right: 3%;
+  margin-left: 79%;
+  margin-top: -3%;
+  
 }
 
 .search-box{
@@ -129,6 +131,6 @@ footer {
 }
 
 .staff-info {
-  margin-top: 1%;
-  margin-left: 1%;
+  margin-top: 0.5%;
+  margin-left: 0.5%;
 }

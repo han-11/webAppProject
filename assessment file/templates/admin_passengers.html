@@ -19,7 +19,7 @@
 
 {% else: %}
 
-<div class="row container">
+<div class="row container staff-info">
   <div class="col-md-6 col-md-offset-3">
     <h3>Admin System</h3>
     {% if session['staff_id']%}
@@ -38,23 +38,63 @@
 </div>
 
 
-<!-- Search Bar, search passenger information using passenger's LastName -->
 <br>
 
-<form class="passenger_search_bar" method="post" action="{{ url_for('search')}}" style="margin:auto;max-width:600px">
-    <input type="text" class="container form-control form-control-inline " placeholder="Search by LastName" name="last_name">
-    <button class="btn btn-info" type="submit">Search</button>
-</form>
 
+<div class="passenger_info">
+  <h1 style="text-align:center">Passenger List</h1>
 
-
-
-<br>
-<!-- Button to allow staff add passenger  -->
-<div class="add_passenger container" style="text-align: right;">
-  <a  type="button" class="btn btn-success form-control-inline add_btn" id="myBtn" data-bs-toggle="modal" data-bs-target="#myModal" >
+  <!-- Button to allow staff add passenger  -->
+<div class="add_passenger container" >
+  <a  type="button" class="btn btn-success form-control-inline btn-add-passenger " id="myBtn" data-bs-toggle="modal" data-bs-target="#myModal" >
                   Add Passenger </a>
 </div>
+<br>
+<!-- Search Bar, search passenger information using passenger's LastName -->
+
+<form class="passenger_search" method="post" action="{{ url_for('search')}}" >
+  <input type="text" class="container form-control form-control-inline " style="display:inline-block;"   placeholder="Search by LastName" name="last_name">
+  <button class="btn btn-info" type="submit" style="display:inline-block;" >Search</button>
+</form>
+
+<br>
+
+
+  <table class="table table-hover info_table" id="bookings">
+      
+       
+    <thead>
+      <tr>
+        {% for name in column_names %}
+          <th>{{name}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+  
+    <tbody>
+      {% for passenger in passengers %}
+      <tr>
+          <td><a href="/admin/passengerinfo/{{passenger.0}}">{{passenger.0}}</a></td>
+          <td>{{passenger.1}}</td>
+          <td>{{passenger.2}}</td>
+          <td>{{passenger.3}}</td>
+          <td>{{passenger.4}}</td>
+          <td>{{passenger.5}}</td>
+          <td>{{passenger.6}}</td>
+          <td>{{passenger.7}}</td>
+          <td>{{passenger.8}}</td>
+          <td>{{passenger.9}}</td>
+          <td>{{passenger.10}}</td>
+
+      </tr> 
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+
+<br>
 
 
 
@@ -133,54 +173,7 @@
 
 </div>
 
-
-
-
-
-
-
 <br>
-
-<div class="passenger_info">
-  <h3 style="text-align:center">Passenger List</h3>
-  <table class="table table-hover" id="bookings">
-      
-       
-    <thead>
-      <tr>
-        {% for name in column_names %}
-          <th>{{name}}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-  
-    <tbody>
-      {% for passenger in passengers %}
-      <tr>
-          <td><a href="/admin/passengerinfo/{{passenger.0}}">{{passenger.0}}</a></td>
-          <td>{{passenger.1}}</td>
-          <td>{{passenger.2}}</td>
-          <td>{{passenger.3}}</td>
-          <td>{{passenger.4}}</td>
-          <td>{{passenger.5}}</td>
-          <td>{{passenger.6}}</td>
-          <td>{{passenger.7}}</td>
-          <td>{{passenger.8}}</td>
-          <td>{{passenger.9}}</td>
-          <td>{{passenger.10}}</td>
-
-      </tr> 
-      {% endfor %}
-    </tbody>
-  </table>
-
-</div>
-
-
-<br>
-
-
-
 
   
 
