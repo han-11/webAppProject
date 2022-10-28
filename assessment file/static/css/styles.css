@@ -1,3 +1,7 @@
+
+/* Name: Hanbing Wang Heather
+Student ID: 1153195 */
+
 body {
   background-color: #B4CDE6;
   
@@ -17,13 +21,20 @@ footer {
 .airport_to_book {
   text-align: center;
   font-size: 1.5em;
-  
+  margin-top: -2%;
+  margin-bottom: 4%;
+}
+
+.admin-portal {
+  display: inline-block;
+  position: absolute;
 }
 
 
 .btn-add-passenger {
-  position: relative;
-  margin-left: -46%;
+  position: absolute;
+  margin-left: -24%;
+  margin-top: 1%;
 }
 
 
@@ -33,6 +44,13 @@ footer {
   position: absolute;
   left: 1%;
   top: 33%;
+}
+
+.btn-to-search {
+  display: inline-block;
+  position: absolute;
+  left: 105%;
+  top: 2%;
 }
 
 .flight_details { 
@@ -77,7 +95,7 @@ footer {
 
 .jumbotron {
   background: rgba(255,255,255,0.4);
-  margin: 10px 500px;
+  margin: 100px 500px;
   height: 300px;
   padding-top: 50px;
   padding-bottom: 80px;
@@ -96,8 +114,8 @@ footer {
 .passenger_search {
   display: inline-block;
   position: absolute;
-  margin-left: 79%;
-  margin-top: -3%;
+  margin-left: 82%;
+  margin-top:-1%;
   
 }
 
@@ -131,6 +149,6 @@ footer {
 }
 
 .staff-info {
-  margin-top: 0.5%;
-  margin-left: 0.5%;
+  margin: 0.5% 0.5% 0.5% 0.5%;
+  
 }

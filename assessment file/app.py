@@ -184,10 +184,13 @@ def update():
         phone = request.form.get("phone")
         passport = request.form.get("passport")
         dob = request.form.get("dob")
+        loyalty = request.form.get("loyalty")
+        print(loyalty)
         cur = getCursor()
         cur.execute('''UPDATE passenger SET FirstName = %s, LastName = %s, EmailAddress = %s,
-                    PhoneNumber = %s, PassportNumber = %s, DateOfBirth = %s
-                    where PassengerID = %s;''', (firstname, lastname, email, phone, passport, dob, passenger_id))
+                    PhoneNumber = %s, PassportNumber = %s, DateOfBirth = %s, LoyaltyTier = %s
+                    where PassengerID = %s;''', (firstname, lastname, email, phone, passport, dob, loyalty, passenger_id))
+        print(cur.statement)
 #  flask message to show the update is successful
         flash("Successfully Updated!")
         return render_template('customer_info_page.html', msg_sent=True)

@@ -1,3 +1,6 @@
+<!-- Name: Hanbing Wang Heather
+Student ID: 1153195 -->
+
 {% extends "base.html" %}
 
 {% block title %}Passengers Dashboard{% endblock %}
@@ -53,8 +56,8 @@
 <!-- Search Bar, search passenger information using passenger's LastName -->
 
 <form class="passenger_search" method="post" action="{{ url_for('search')}}" >
-  <input type="text" class="container form-control form-control-inline " style="display:inline-block;"   placeholder="Search by LastName" name="last_name">
-  <button class="btn btn-info" type="submit" style="display:inline-block;" >Search</button>
+  <input type="text" class="container form-control form-control-inline "  placeholder="Search by LastName" name="last_name">
+  <button class="btn btn-info btn-to-search" type="submit"  >Search</button>
 </form>
 
 <br>
